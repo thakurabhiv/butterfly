@@ -6,8 +6,9 @@
   "build": {
     "frontendDist": "../build",
     "devUrl": "http://localhost:5173",
-    "beforeDevCommand": "npm run dev",
-    "beforeBuildCommand": "npm run build"
+    "beforeDevCommand": "go build -C src-goservices -tags=jsoniter -o ../src-tauri/binaries/goservices . && node scripts/appendTargetTriple.mjs goservices && npm run dev",
+    "beforeBuildCommand": "npm run build",
+    "beforeBundleCommand": "go build -C src-goservices -ldflags=-s -tags=jsoniter -o ../src-tauri/binaries/goservices . && node scripts/appendTargetTriple.mjs goservices"
   },
   "app": {
     "windows": [
@@ -15,7 +16,7 @@
         "title": "Butterfly",
         "resizable": false,
         "browserExtensionsEnabled": false,
-        "devtools": false,
+        "devtools": true,
         "dragDropEnabled": false,
         "incognito": true,
         "maximizable": false,
@@ -36,6 +37,9 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
+    ],
+    "externalBin": [
+      "binaries/goservices"
     ]
   }
 }

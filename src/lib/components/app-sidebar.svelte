@@ -37,21 +37,21 @@
 		],
 		navMain: [
 			{
-				title: "Playground",
+				title: "Master",
 				url: "#",
 				icon: SquareTerminal,
 				isActive: true,
 				items: [
 					{
-						title: "History",
+						title: "Tax",
 						url: "#",
 					},
 					{
-						title: "Starred",
+						title: "Product",
 						url: "#",
 					},
 					{
-						title: "Settings",
+						title: "Vendor",
 						url: "#",
 					},
 				],

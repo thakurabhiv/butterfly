@@ -9,6 +9,15 @@
 		class: className,
 		...restProps
 	}: WithElementRef<HTMLInputAttributes> = $props();
+
+	// changes for add focus to input
+	export function focus() {
+		ref?.focus();
+	}
+
+	export function element() {
+		return ref;
+	}
 </script>
 
 <input

@@ -1,0 +1,133 @@
+{
+    "branch_owner": {
+        "icon": "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",
+        "first_name": "Shubham",
+        "last_name": "Traders",
+        "gstin": "DJKHSDA8789DSA",
+        "address": {
+            "address_lines": [
+                "At Post Chaul, Thakur Ali",
+                "Alibaug, Raigad"
+            ],
+            "state": "27-Maharashtra",
+            "pin_code": 402203
+        },
+        "phone_number": "+919273088993",
+        "email": "abhithakur.id@gmail.com",
+        "upi_id": "abhithakur.id-2@okaxis",
+        "bank_name": "HDFC Bank",
+        "branch_name": "Chaul",
+        "account_number": "14521548758563",
+        "ifsc_code": "HDFC0000256",
+        "account_holder_name": "Shubham Traders",
+        "signatory": "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"
+    },
+    "invoice_summary": {
+        "invoice_number": "ST2024251",
+        "invoice_date": "08 May 2024",
+        "place_of_supply": "27-Maharashtra",
+        "financial_year": "2024-25"
+    },
+    "vendor": {
+        "vendor_name": "Gurukrupa Trading",
+        "address": {
+            "address_lines": [
+                "At Post Chaul, Thakur Ali",
+                "Alibaug, Raigad"
+            ],
+            "state": "27-Maharashtra",
+            "pin_code": 402203
+        },
+        "phone_number": "+919273088993",
+        "email": "abhithakur.id@gmail.com",
+        "gstin": "DJKHSDA8789DSA"
+    },
+    "transactions": [
+        {
+            "product_name": "Supari Fator",
+            "hsn_sac": "0802",
+            "unit": "KG",
+            "quantity": 180,
+            "price_per_unit": 140.05,
+            "no_of_bags": 4,
+            "amount": 25209
+        },
+        {
+            "product_name": "Supari Fator",
+            "hsn_sac": "0802",
+            "unit": "KG",
+            "quantity": 180,
+            "price_per_unit": 140.05,
+            "no_of_bags": 4,
+            "amount": 25209
+        },
+        {
+            "product_name": "Supari Fator",
+            "hsn_sac": "0802",
+            "unit": "KG",
+            "quantity": 180,
+            "price_per_unit": 140.05,
+            "no_of_bags": 4,
+            "amount": 25209
+        },
+        {
+            "product_name": "Supari Fator",
+            "hsn_sac": "0802",
+            "unit": "KG",
+            "quantity": 180,
+            "price_per_unit": 140.05,
+            "no_of_bags": 4,
+            "amount": 25209
+        },
+        {
+            "product_name": "Supari Fator",
+            "hsn_sac": "0802",
+            "unit": "KG",
+            "quantity": 180,
+            "price_per_unit": 140.05,
+            "no_of_bags": 4,
+            "amount": 25209
+        }
+    ],
+    "total": {
+        "product_name": "Total",
+        "quantity": 900,
+        "no_of_bags": 20,
+        "amount": 126045
+    },
+    "other_charges": [
+        {
+            "name": "Packaging Charges",
+            "amount": 2000
+        }
+    ],
+    "taxable_amount": {
+        "product_name": "Taxable Amount",
+        "amount": 129495.00
+    },
+    "gst_charges": [
+        {
+            "name": "CGST",
+            "percent": 2.5,
+            "amount": 3237.375
+        },
+        {
+            "name": "SGST",
+            "percent": 2.5,
+            "amount": 3237.375
+        }
+    ],
+    "all_total": {
+            "product_name": "Total (Incl Tax + Charges)",
+            "amount": 135969.75
+    },
+    "notes": [
+        "Thank you for the business Thank you for the business Thank you for the business",
+        "Thank you for the business Thank you for the business Thank you for the business"
+    ],
+    "terms_and_conditions": [
+        "Goods one sold can not be taken back or exchanged Goods one sold can not be taken back or exchanged",
+        "Payment must be done in 2 days",
+        "Subject to local Jurisdiction"
+    ]
+}
