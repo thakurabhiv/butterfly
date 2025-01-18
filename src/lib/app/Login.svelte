@@ -5,10 +5,10 @@
     import { Button } from '$lib/components/ui/button';
     import { Loader2, LogIn } from 'lucide-svelte';
 
-    export let logInOK = false;
+    let { isLoggedIn = $bindable() } = $props();
 
-    let username = "abhishekvthakur";
-    let password = "password@12345";
+    let username = $state("abhishekvthakr");
+    let password = $state("password");
 
     /**
 	 * @type {Input}
@@ -16,21 +16,26 @@
     let usernameInput;
     onMount(() => tick().then(usernameInput.focus));
 
-    async function reset() {
+    function reset() {
         username = ""
         password = ""
 
         usernameInput.focus();
     }
 
-    let isLoading = false
-    async function onSubmit() {
+    let isLoading = $state(false)
+    /**
+	 * @param {{ preventDefault: () => void; }} evt
+	 */
+    function onSubmit(evt) {
+        evt.preventDefault();
+        
         isLoading = true
 
         setTimeout(() => {
             isLoading = false
 
-            logInOK = true
+            isLoggedIn = true
         }, 500)
     }
 </script>
@@ -43,7 +48,7 @@
             <h1 class="text-2xl font-semibold tracking-tight">Login</h1>
         </div>
         <div class="grid gap-6 mt-5">
-            <form on:submit|preventDefault={onSubmit}>
+            <form onsubmit={onSubmit}>
                 <div class="grid gap-2">
                     <div class="grid gap-1">
                         <Label class="sr-only" for="username">Username</Label>

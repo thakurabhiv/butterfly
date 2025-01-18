@@ -1,8 +1,6 @@
 import { writable } from 'svelte/store';
 import type { FooterMessage } from '$lib/types';
-
-import { addToast } from '$lib/app/Toaster.svelte';
-import type { ToastData } from '$lib/app/Toast.svelte';
+import { toast } from "svelte-sonner";
 
 enum ToastMessageType {
     ERROR = "bg-red-500",
@@ -14,7 +12,7 @@ interface ToastMessage {
     type: ToastMessageType,
     title: string,
     description: string,
-    color?: string
+    position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'top-center' | 'bottom-center'
 }
 
 // store for messages to display in app footer
@@ -26,14 +24,24 @@ TOAST_UPDATES.subscribe((message: ToastMessage) => {
     if (!message.title || !message.description) {
         return;
     }
-
-    const toastData: ToastData = {
-        title: message.title,
-        description: message.description,
-        color: `${message.color || message.type}`
+    
+    let func;
+    switch (message.type) {
+        case ToastMessageType.SUCCESS:
+            func = toast.success;
+            break;
+        case ToastMessageType.WARNING:
+            func = toast.warning;
+            break;
+        case ToastMessageType.ERROR:
+            func = toast.error;
+            break;
     }
-
-    addToast({ data: toastData });
+    
+    func(message.title, {
+        description: message.description,
+        position: message.position ?? 'bottom-right',
+    });
 });
 
 export {
