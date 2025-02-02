@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount, tick } from 'svelte';
-	import { invoke } from '@tauri-apps/api/tauri';
+	import { invoke } from '@tauri-apps/api/core';
 
 	import { Input } from '$lib/components/ui/input';
 	import { Separator } from '$lib/components/ui/separator';
@@ -118,7 +118,8 @@
 				const fy = formData.financial_year;
 				reset();
 				financialYear = fy;
-				selectFYAndLoadData(fy);
+				formData.financial_year = fy;
+				loadData();
 			})
 			.catch((err) => {
 				let toastMessage: ToastMessage = {
@@ -155,7 +156,7 @@
 	}
 
 	function onSelectedChange(value: any) {
-		formData.financial_year = value?.value;
+		formData.financial_year = value;
 		loadData();
 	}
 
@@ -163,25 +164,30 @@
 		reset();
 		
 		mode = Mode.UPDATE;
-		formData = data.detail.data as TaxDetailsType;
+		formData = data.data as TaxDetailsType;
 	}
 
 	const setupFY = async () => {
-		let allFY = await invoke("get_all_financial_year") as any[];
-		financialYears = allFY.map(({financial_year}) => {
-			return { label: financial_year, value: financial_year }
-		})
-		
-		await tick();
-		financialYear = await invoke('get_current_fy') as string;
-		formData.financial_year = financialYear;
-		loadData();
-	}
+		invoke("get_all_financial_year").then(async (data) => {
+			const allFY = data as any[];
+			financialYears = allFY.map(({financial_year}) => {
+				return { label: financial_year, value: financial_year }
+			});
 
-	const selectFYAndLoadData = (fy: string) => {
-		formData.financial_year = fy;
-		loadData();
-	};
+			await tick();
+			financialYear = await invoke('get_current_fy') as string;
+
+			formData.financial_year = financialYear;
+			loadData();
+		}).catch(async (err) => {
+			let toastMessage: ToastMessage = {
+				title: "Error",
+				description: err,
+				type: ToastMessageType.ERROR
+			}
+			TOAST_UPDATES.set(toastMessage);
+		});
+	}
 
 	onMount(setupFY);
 </script>
@@ -298,7 +304,7 @@
 			<Button variant="destructive" onclick={reset}>Reset</Button>
 		</div>
 	</div>
-	<ScrollArea>
+	<ScrollArea orientation="vertical">
 		<div>
 			<Separator class="fixed"/>
 			<div class="mx-2">
@@ -306,7 +312,7 @@
 					{columns}
 					{data}
 					allowEdit={true}
-					on:edit={onTaxEdit}
+					onEdit={onTaxEdit}
 				/>
 			</div>
 		</div>

@@ -49,44 +49,48 @@
     import { SideCarStatusCode, startSidecar, type SideCarStatus } from '$lib/utils/sideCar';
     import { TOAST_UPDATES, type ToastMessage, ToastMessageType } from '$lib/utils/stores';
 
-    let financialYears: any = [];
+    let financialYears: { label: string, value: string }[] = $state([]);
     let financialYearPlaceHolder = "Financial Year";
+    let financialYear = $state("");
+	const financialYearTriggerContent = $derived(
+		financialYears.find((f) => f.value == `financialYear`)?.label ?? financialYearPlaceHolder
+	);
 	let selectedFinancialYear = { label: financialYearPlaceHolder, value: undefined };
     let productNameInput: KAutoComplete;
     let productQuantityInput: Input;
 
-    let restrictInvoiceEntry = false;
-    let showInvoice = true;
-    let openInvoiceDialog = false;
+    let restrictInvoiceEntry = $state(false);
+    let showInvoice = $state(true);
+    let openInvoiceDialog = $state(false);
 
     // based on this flag, we either save invoice data or update it
-    let invoiceMode = Mode.ADD;
+    let invoiceMode = $state(Mode.ADD);
 
     // branch owner details
     let branchOwnerDetails = {} as BranchOwnerDetailsType;
-    let taxDetails = {} as TaxDetailsType;
+    let taxDetails = $state({} as TaxDetailsType);
 
-    let vendorFormData: VendorDetailsType = getInitialObject(VendorDetailsSchema);
-    $: {
+    let vendorFormData: VendorDetailsType = $state(getInitialObject(VendorDetailsSchema));
+    $effect(() => {
         if (vendorFormData && !vendorFormData.vendor_name) {
             vendorFormData = {} as VendorDetailsType;
             taxDetails = {} as TaxDetailsType;
         }
-    }
+    });
 
-    let productFormData: ProductDetailsType = getInitialObject(ProductDetailsSchema);
-    $: {
+    let productFormData: ProductDetailsType = $state(getInitialObject(ProductDetailsSchema));
+    $effect(() => {
         if (productFormData && !productFormData.short_name) {
             productFormData = {} as ProductDetailsType;
             invoiceProductData = {} as InvoiceProductType;
         }
-    }
+    });
 
-    let invoiceSummaryFormData: InvoiceSummaryType = getInitialObject(InvoiceSummarySchema);
-    let invoiceSummaryValidationMessages = {} as InvoiceSummaryType;
-    let invoiceProductData: InvoiceProductType = getInitialObject(InvoiceProductSchema);
-    let invoiceProductValidationMessages = {} as InvoiceProductType;
-    let invoiceProductDataMode: Mode = Mode.ADD;
+    let invoiceSummaryFormData: InvoiceSummaryType = $state(getInitialObject(InvoiceSummarySchema));
+    let invoiceSummaryValidationMessages = $state({} as InvoiceSummaryType);
+    let invoiceProductData: InvoiceProductType = $state(getInitialObject(InvoiceProductSchema));
+    let invoiceProductValidationMessages = $state({} as InvoiceProductType);
+    let invoiceProductDataMode: Mode = $state(Mode.ADD);
 
     let prodUpdateIdx = -1;
 
@@ -274,7 +278,7 @@
         await tick()
         productQuantityInput.focus();
         await tick();
-        productQuantityInput.element().select();
+        (productQuantityInput.element() as HTMLInputElement).select();
     }
 
     const onProductDelete = (event: any) => {
@@ -550,13 +554,13 @@
                     class="w-44"
                 >
                     <Select.Root
-                        onSelectedChange={onFinancialYearSelection}
-                        selected={selectedFinancialYear}
+                        type="single"
+                        onValueChange={onFinancialYearSelection}
+                        bind:value={financialYear}
                         disabled={restrictInvoiceEntry}
-                        data-validate
                     >
-                        <Select.Trigger class="h-8 px-2">
-                            <Select.Value placeholder={financialYearPlaceHolder} />
+                        <Select.Trigger class="h-8 px-2" data-validate>
+                            {financialYearTriggerContent}
                         </Select.Trigger>
                         <Select.Content>
                             {#each financialYears as { label, value }}
@@ -716,7 +720,7 @@
                                 bind:this={productQuantityInput}
                                 bind:value={invoiceProductData.quantity}
                                 class="h-8 px-2 text-right"
-                                on:input={calculateProductAmount}
+                                oninput={calculateProductAmount}
                                 data-validate
                             />
                         </KField>
@@ -746,7 +750,7 @@
                     </div>
                     <div class="grid grid-flow-col grid-cols-2">
                         <div id="actionButtons" class="flex gap-3 mt-3">
-                            <Button on:click={onProductAdd}>
+                            <Button onclick={onProductAdd}>
                                 { invoiceProductDataMode == Mode.ADD ? "Add" : "Update" }
                             </Button>
                             <Button variant="destructive" class="bg-red-600">Reset</Button>
@@ -779,7 +783,7 @@
                 >
                     <Input
                         bind:value={invoiceSummaryFormData.pkg_charges}
-                        on:input={onPackagingChargesInput}
+                        oninput={onPackagingChargesInput}
                         type="number"
                         class="h-8 px-2 text-right"
                         data-validate
@@ -850,10 +854,10 @@
                 </KField>
             </div>
             <div id="actionButtons" class="pb-3 flex gap-3 items-center mt-3">
-                <Button on:click={save}>{invoiceMode == Mode.ADD ? "Save" : "Update"}</Button>
-                <Button variant="destructive" class="bg-red-600" on:click={resetAll}>Reset</Button>
+                <Button onclick={save}>{invoiceMode == Mode.ADD ? "Save" : "Update"}</Button>
+                <Button variant="destructive" class="bg-red-600" onclick={resetAll}>Reset</Button>
                 {#if showInvoice}
-                    <Button on:click={openInvoice}>Show Invoice</Button>
+                    <Button onclick={openInvoice}>Show Invoice</Button>
                 {/if}
             </div>
         </div>

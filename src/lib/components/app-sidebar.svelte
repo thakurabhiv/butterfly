@@ -144,9 +144,9 @@
 
 <script lang="ts">
 	import NavMain from "$lib/components/nav-main.svelte";
-	import NavProjects from "$lib/components/nav-projects.svelte";
+	// import NavProjects from "$lib/components/nav-projects.svelte";
 	import NavUser from "$lib/components/nav-user.svelte";
-	import TeamSwitcher from "$lib/components/team-switcher.svelte";
+	// import TeamSwitcher from "$lib/components/team-switcher.svelte";
 	import * as Sidebar from "$lib/components/ui/sidebar/index.js";
 	import type { ComponentProps } from "svelte";
 

@@ -5,15 +5,17 @@
     import * as Breadcrumb from "$lib/components/ui/breadcrumb/index";
 
     import TaxDetails from "$lib/app/forms/TaxDetails.svelte";
+    import ProductDetails from "$lib/app/forms/ProductDetails.svelte";
+    import VendorDetails from "$lib/app/forms/VendorDetails.svelte";
   
     let breadcrumbElements: String[] = ["Master", "Tax Details"];
   </script>
   
   <Sidebar.Provider>
       <AppSidebar/>
-      <Sidebar.Inset>
+      <Sidebar.Inset class="h-screen">
           <header
-            class="flex h-10 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12"
+            class="flex h-10 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 fixed"
           >
             <div class="flex items-center gap-2 px-4">
               <Sidebar.Trigger class="-ml-1" />
@@ -36,8 +38,12 @@
               </Breadcrumb.Root>
             </div>
           </header>
-          <div class="flex flex-1 flex-col gap-4 p-4 pt-0">
-            <TaxDetails/>
+          <!-- <div class="flex flex-1 flex-col pt-0"> -->
+          <div class="w-full h-full pt-10">
+            <!-- <Separator /> -->
+            <!-- <TaxDetails/> -->
+            <!-- <ProductDetails/> -->
+            <VendorDetails />
             <!-- <div class="grid auto-rows-min gap-4 md:grid-cols-3">
               <div class="bg-muted/50 aspect-video rounded-xl"></div>
               <div class="bg-muted/50 aspect-video rounded-xl"></div>

@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
     export enum ColumnType {
         Number,
         Amount,
@@ -14,18 +14,34 @@
 </script>
 
 <script lang="ts">
-    import { createEventDispatcher } from 'svelte';
-
     import * as Table from '$lib/components/ui/table';
     import { makeReadable, formatDate, formatAmount } from '$lib/utils/common';
     import { Edit, X } from 'lucide-svelte';
 
+    type GridAttributes = {
+        columns: Column[],
+        data: any[],
+        allowEdit?: boolean,
+        allowDelete?: boolean,
+        onEdit?: Function
+        onDelete?: Function
+    };
+
+    let {
+        columns,
+        data,
+        allowEdit = false,
+        allowDelete = false,
+        onEdit = () => {},
+        onDelete = () => {}
+    }: GridAttributes = $props();
+
     // export let columnNames: string[] = [];
-    export let columns: Column[] = [];
+    /* export let columns: Column[] = [];
     export let data: any[] = [];
     export const readableColumnNames: boolean = true;
     export let allowEdit = false;
-    export let allowDelete = false;
+    export let allowDelete = false; */
     
     function checkTypeNull(data: any, type: ColumnType | undefined) {
         if (!data) {
@@ -57,13 +73,12 @@
         }
     }
 
-    let dispatch = createEventDispatcher();
     const onEditClick = (data: any, index: number) => {
-        dispatch('edit', { data, index });
+        onEdit({ data: Object.assign({}, data), index });
     }
 
     const onDeleteClick = (rowData: any) => {
-        dispatch('delete', rowData);
+        onDelete(rowData);
     }
 </script>
 
@@ -92,22 +107,19 @@
                 <Table.Body>
                     {#each data as row, idx}
                         <Table.Row>
-                            <!-- {#each columnNames as columnName}
-                                <Table.Cell class="p-1">{checkTypeNull(row[columnName])}</Table.Cell>
-                            {/each} -->
                             {#each columns as column}
                                 <Table.Cell class="p-1">{checkTypeNull(row[column.key], column.type)}</Table.Cell>
                             {/each}
                             {#if allowEdit}
                                 <Table.Cell class="p-1 content-end">
-                                    <button on:click={() => onEditClick(row, idx)} tabindex="-1">
+                                    <button onclick={() => onEditClick(row, idx)} tabindex="-1">
                                         <Edit class="w-5 h-5 hover:cursor-pointer"/>
                                     </button>
                                 </Table.Cell>
                             {/if}
                             {#if allowDelete}
                                 <Table.Cell class="p-1 content-end">
-                                    <button on:click={() => onDeleteClick(row)} tabindex="-1">
+                                    <button onclick={() => onDeleteClick(row)} tabindex="-1">
                                         <X class="w-5 h-5 hover:cursor-pointer text-red-500"/>
                                     </button>
                                 </Table.Cell>

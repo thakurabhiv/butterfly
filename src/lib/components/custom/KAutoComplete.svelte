@@ -1,46 +1,46 @@
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
-    import type { HTMLInputAttributes } from 'svelte/elements';
+	import type { WithElementRef } from "bits-ui";
+	import type { HTMLInputAttributes } from "svelte/elements";
     import { Input } from '$lib/components/ui/input';
 	import { Loader } from 'lucide-svelte';
 	import { debounceWrapper } from '$lib/utils/common';
 
 	const DEFAULT_THRESHOLD = 1;
-	const DEFAULT_DEBOUNCE = 100;
+	const DEFAULT_DEBOUNCE = 500;
 
 	interface Data {
 		src: any[] | Function,
 		key?: string
 	}
 
-	interface KAutoCompleteAttributes extends HTMLInputAttributes {
+	export type KAutoCompleteAttributes = WithElementRef<HTMLInputAttributes> & {
+		onSelection?: Function,
+		onEmpty?: Function,
 		data: Data,
 		threshold?: number,
 		debounce?: number,
 		mode?: "loose" | "strict"
-	}
+	};
 
-    type $$Props = KAutoCompleteAttributes
+	let {
+		value = $bindable(),
+		data,
+		onSelection = () => {},
+		onEmpty = () => {},
+		threshold = DEFAULT_THRESHOLD,
+		debounce = DEFAULT_DEBOUNCE,
+		mode = "strict",
+		...rest
+	}: KAutoCompleteAttributes = $props(); 
 
-    let className: $$Props["class"] = undefined;
-	export let value: $$Props["value"] = undefined;
-	export { className as class };
+	let filteredData: string[] | any[] = $state([]);
+	let displayData = $derived.by(() => {
+		return !data.key ? [...filteredData] : filteredData.map((value: any) => value[data.key as string]);
+	});
 
-	export let data: $$Props["data"];
-	export let threshold: $$Props["threshold"] = DEFAULT_THRESHOLD;
-	export let debounce: $$Props["debounce"] = DEFAULT_DEBOUNCE;
-	export const mode: $$Props["mode"] = 'strict';
-
-	let dispatch = createEventDispatcher();
-
-	let filteredData: string[] | any[] = [];
-	$: displayData = !data.key ?
-		[...filteredData] :
-		filteredData.map((value: any) => value[data.key as string]);
-
-	let show = false;
-	let cursor = -1;
-	let isDataLoading = false;
+	let show = $state(false);
+	let cursor = $state(-1);
+	let isDataLoading = $state(false);
 
 	let inputElement: any
 	export function focus() {
@@ -63,6 +63,7 @@
 		if (text.length < (threshold || DEFAULT_THRESHOLD) || text.length == 0) {
 			filteredData = []
 			show = false;
+			onEmpty();
 			return;
 		}
 
@@ -96,6 +97,11 @@
 	}
 	const debouncedOnInput = debounceWrapper(onInput, debounce || DEFAULT_DEBOUNCE);
 
+	const checkEmpty = (event: any) => {
+		const text = (event.target.value as string || '').trim();
+		if (text.length == 0) onEmpty();
+	}
+
 	const onKeyPress = (event: any) => {
 		if (isDataLoading) {
 			return;
@@ -110,11 +116,12 @@
 				cursor = cursor == 0 ? filteredData.length - 1 : cursor - 1;
 				break;
 			case "Enter":
-				value = displayData[cursor]
+				value = displayData[cursor];
 
 				// dispatch new event "selection" with selected data
 				let selectedData = { ...filteredData[cursor] }
-				dispatch("selection", selectedData)
+				// dispatch("selection", { data: selectedData })
+				onSelection({ data: selectedData });
 
 				cursor = -1
 				show = false;
@@ -135,21 +142,14 @@
 <div class="relative">
 	<Input
 		bind:this={inputElement}
-		class={className}
 		bind:value
-		on:blur={onBlur}
-		on:change
-		on:click
-		on:focus
-		on:keydown
-		on:keypress
-		on:keyup={onKeyPress}
-		on:mouseover
-		on:mouseenter
-		on:mouseleave
-		on:paste
-		on:input={debouncedOnInput}
-		{...$$restProps}
+		onblur={onBlur}
+		onkeyup={onKeyPress}
+		oninput={(evt) => {
+			debouncedOnInput(evt);
+			checkEmpty(evt);
+		}}
+		{...rest}
 	/>
 	{#if isDataLoading}
 		<div class="absolute top-1 right-1">

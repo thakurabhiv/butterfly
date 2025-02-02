@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onMount, tick } from 'svelte';
-    import { invoke } from '@tauri-apps/api';
+    import { invoke } from '@tauri-apps/api/core';
 
     import { Input } from '$lib/components/ui/input';
     import { Button } from '$lib/components/ui/button';
@@ -10,8 +10,8 @@
     import KField from '$lib/components/custom/KField.svelte';
     import KAutoComplete from '$lib/components/custom/KAutoComplete.svelte';
     import Grid from '$lib/app/Grid.svelte';
-    import type { Column, ColumnType } from '$lib/app/Grid.svelte';
-    import { addToast } from '$lib/app/Toaster.svelte';
+    import type { Column } from '$lib/app/Grid.svelte';
+    import { TOAST_UPDATES, ToastMessageType } from "$lib/utils/stores";
 
     import { VendorDetailsSchema, type VendorDetailsType, type StateListType, getInitialObject } from '$lib/utils/schemas';
     import { removeEmptyFields, searchStates, Mode } from '$lib/utils/common';
@@ -25,24 +25,24 @@
         { key: "vgstin", name: "GSTIN" }
     ];
 
-    let formData = getInitialObject(VendorDetailsSchema);
-    let validationMessages = {} as VendorDetailsType;
-    let mode: Mode = Mode.ADD;
-    let vendorNameInput: KAutoComplete
+    let formData = $state(getInitialObject(VendorDetailsSchema));
+    let validationMessages = $state({} as VendorDetailsType);
+    let mode: Mode = $state(Mode.ADD);
+    let gridData = $state([] as VendorDetailsType[]);
+    /* $effect(() => {
+        if (formData && !formData.vendor_name) {
+            reset();
+        }
+    }); */
 
+    let vendorNameInput: KAutoComplete;
+    
     const vendorNameData = {
         src: async (query: string) => {
             return await invoke("find_vendors", { name: query })
         },
         key: "vendor_name"
     };
-
-    let gridData: VendorDetailsType[];
-    $: {
-        if (formData && !formData.vendor_name) {
-            reset();
-        }
-    }
 
     let stateData = {
         src: searchStates,
@@ -54,13 +54,19 @@
 			.then((records) => {
 				gridData = records as any[]
 			})
-			.catch(console.error)
+			.catch((err) => {
+                let toastData = {
+					title: 'Error',
+					description: err,
+					type: ToastMessageType.ERROR
+				};
+                TOAST_UPDATES.set(toastData);
+            })
     }
 
     const save = () => {
         formData = removeEmptyFields(formData) as VendorDetailsType;
         const zResult = VendorDetailsSchema.safeParse(formData);
-        console.log(zResult);
 
         validationMessages = {} as VendorDetailsType;
         if (!zResult.success) {
@@ -82,12 +88,9 @@
                 let toastData = {
                     title: 'Success',
 					description: `Data ${mode == Mode.ADD ? 'Saved' : 'Updated'} successfully`,
-					color: 'bg-green-500'
+					type: ToastMessageType.SUCCESS
 				};
-                
-				addToast({
-                    data: toastData
-				});
+                TOAST_UPDATES.set(toastData);
 
                 reset();
                 loadGridData();
@@ -96,17 +99,14 @@
                 let toastData = {
 					title: 'Error',
 					description: err,
-					color: 'bg-red-500'
+					type: ToastMessageType.ERROR
 				};
-
-				addToast({
-					data: toastData
-				});
+                TOAST_UPDATES.set(toastData);
             })
     }
 
     const onVendorSelection = async (event: any) => {
-        formData = event.detail.data as VendorDetailsType;
+        formData = event.data as VendorDetailsType;
         mode = Mode.UPDATE;
 
         await tick();
@@ -114,7 +114,7 @@
     }
 
     const onStateSelection = (event: any) => {
-        const stateData = event.detail as StateListType;
+        const stateData = event.data as StateListType;
         formData.state_id = stateData.id as string;
     }
 
@@ -149,7 +149,8 @@
                             data={vendorNameData}
                             class="px-2 h-8"
                             data-validate
-                            on:selection={onVendorSelection}
+                            onSelection={onVendorSelection}
+                            onEmpty={reset}
                         />
                     </KField>
                 </div>
@@ -188,7 +189,7 @@
                             threshold={2}
                             debounce={700}
                             bind:value={formData.address4}
-                            on:selection={onStateSelection}
+                            onSelection={onStateSelection}
                             class="h-8 px-2 appearance-none"
                             data-validate
                         />
@@ -324,8 +325,8 @@
                 </div>
             </div>
             <div id="actionButtons" class="px-4 pt-4 pb-3 h-full flex gap-3 items-end">
-                <Button variant="secondary" on:click={save}>{mode == Mode.ADD ? "Save" : "Update"}</Button>
-                <Button variant="destructive" on:click={reset}>Reset</Button>
+                <Button variant="secondary" onclick={save}>{mode == Mode.ADD ? "Save" : "Update"}</Button>
+                <Button variant="destructive" onclick={reset}>Reset</Button>
             </div>
         </div>
     </ScrollArea>
@@ -337,7 +338,7 @@
                     { columns }
                     data={gridData}
                     allowEdit={true}
-                    on:edit={onVendorSelection}
+                    onEdit={onVendorSelection}
                 />
             </div>
         </div>

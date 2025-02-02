@@ -15,7 +15,6 @@
       {
         "title": "Butterfly",
         "resizable": false,
-        "browserExtensionsEnabled": false,
         "devtools": true,
         "dragDropEnabled": false,
         "incognito": true,
@@ -37,9 +36,6 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ],
-    "externalBin": [
-      "binaries/goservices"
     ]
   }
 }

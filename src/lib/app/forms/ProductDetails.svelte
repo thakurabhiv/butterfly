@@ -5,7 +5,6 @@
     import { Textarea } from '$lib/components/ui/textarea';
     import { Separator } from '$lib/components/ui/separator';
     import { Button } from '$lib/components/ui/button';
-    import { addToast } from '$lib/app/Toaster.svelte';
     import { ScrollArea } from '$lib/components/ui/scroll-area';
 
     import Grid from '$lib/app/Grid.svelte';
@@ -14,18 +13,20 @@
     import KAutoComplete from '$lib/components/custom/KAutoComplete.svelte';
     import { ProductDetailsSchema, type ProductDetailsType, getInitialObject } from '$lib/utils/schemas';
     import { removeEmptyFields } from '$lib/utils/common';
+    import { TOAST_UPDATES, ToastMessageType } from "$lib/utils/stores";
 
-    import { invoke } from '@tauri-apps/api';
+    import { invoke } from '@tauri-apps/api/core';
 
-    let formData = getInitialObject(ProductDetailsSchema);
-    let validationMessages = Object.assign({}, formData);
-    let gridData: ProductDetailsType[];
+    let formData = $state(getInitialObject(ProductDetailsSchema));
+    let validationMessages = $state({} as ProductDetailsType);
+    let gridData = $state([] as ProductDetailsType[]);
+    let mode: string = $state("SAVE");
 
-    $: {
-        if (formData && !formData.short_name) {
-            reset();
-        }
-    }
+    // $effect(() => {
+    //     if (formData && !formData.short_name) {
+    //         reset();
+    //     }
+    // })
 
     let columns: Column[] = [
         { key: "short_name", name: "Product Name" },
@@ -33,7 +34,6 @@
         { key: "price", name: "Price", type: ColumnType.Amount },
         { key: "created_date", name: "Created Date", type: ColumnType.Date },
     ];
-    let mode: string = "SAVE";
 
     let shortDescInput: KAutoComplete
 
@@ -69,12 +69,9 @@
                 let toastData = {
                     title: 'Success',
 					description: `Data ${mode == 'SAVE' ? 'Saved' : 'Updated'} successfully`,
-					color: 'bg-green-500'
+                    type: ToastMessageType.SUCCESS
 				};
-                
-				addToast({
-                    data: toastData
-				})
+                TOAST_UPDATES.set(toastData);
 
                 reset();
                 loadGridData();
@@ -83,12 +80,9 @@
                 let toastData = {
 					title: 'Error',
 					description: err,
-					color: 'bg-red-500'
+					type: ToastMessageType.ERROR
 				};
-
-				addToast({
-					data: toastData
-				})
+                TOAST_UPDATES.set(toastData);
 
                 reset();
             });
@@ -104,7 +98,8 @@
     }
 
     const onSelection = async (event: any) => {
-        formData = event.detail.data as ProductDetailsType;
+        console.log(event);
+        formData = event.data as ProductDetailsType;
         mode = "UPDATE"
 
         await tick();
@@ -122,7 +117,7 @@
     onMount(loadGridData)
 </script>
 
-<div class="grid grid-flow-row h-full grid-rows-defaultFormFr">
+<div class="grid grid-flow-row grid-rows-defaultFormFr h-full">
     <div class="grid">
         <div id="input_form_area" class="mx-4">
             <div id="fields">
@@ -140,8 +135,8 @@
                             data-validate
                             {data}
                             threshold={2}
-                            debounce={700}
-                            on:selection={onSelection}
+                            debounce={500}
+                            onSelection={onSelection}
                         />
                     </KField>
                     <KField
@@ -187,8 +182,8 @@
             <div id="buttons"></div>
         </div>
         <div id="actionButtons" class="px-4 pt-4 pb-3 h-full flex gap-3 items-end">
-			<Button variant="secondary" on:click={save}>{mode == "SAVE" ? "Save" : "Update"}</Button>
-			<Button variant="destructive" on:click={reset}>Reset</Button>
+			<Button variant="secondary" onclick={save}>{mode == "SAVE" ? "Save" : "Update"}</Button>
+			<Button variant="destructive" onclick={reset}>Reset</Button>
 		</div>
     </div>
     <ScrollArea>
@@ -199,7 +194,7 @@
                     { columns }
                     data={gridData}
                     allowEdit={true}
-                    on:edit={onSelection}
+                    onEdit={onSelection}
                 />
             </div>
         </div>

@@ -59,6 +59,19 @@ const config: Config = {
 					border: "hsl(var(--sidebar-border))",
 					ring: "hsl(var(--sidebar-ring))",
         		},
+				magnum: {
+					'50': '#fff9ed',
+					'100': '#fef2d6',
+					'200': '#fce0ac',
+					'300': '#f9c978',
+					'400': '#f7b155',
+					'500': '#f38d1c',
+					'600': '#e47312',
+					'700': '#bd5711',
+					'800': '#964516',
+					'900': '#793a15',
+					'950': '#411c09',
+				}
 			},
 			borderRadius: {
 				xl: "calc(var(--radius) + 4px)",
@@ -67,7 +80,14 @@ const config: Config = {
 				sm: "calc(var(--radius) - 4px)"
 			},
 			fontFamily: {
-				sans: [...fontFamily.sans]
+				sans: [...fontFamily.sans],
+				nunito: ['Nunito']
+			},
+			gridTemplateRows: {
+				'defaultFormFr': '10fr 8fr'
+			},
+			gridTemplateColumns: {
+				'productDetails': "2.5fr 4fr"
 			},
 			keyframes: {
 				"accordion-down": {
