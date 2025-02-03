@@ -1,13 +1,12 @@
 <script lang="ts">
     import { onMount } from 'svelte';
-    import { invoke } from '@tauri-apps/api/tauri';
+    import { invoke } from '@tauri-apps/api/core';
 
     import { Input } from '$lib/components/ui/input';
     import { Button } from '$lib/components/ui/button';
     import { ScrollArea } from '$lib/components/ui/scroll-area';
     import * as AlertDialog from '$lib/components/ui/alert-dialog';
     import KField from '$lib/components/custom/KField.svelte';
-    import { addToast } from '$lib/app/Toaster.svelte';
     import { Loader2, Image, QrCode } from 'lucide-svelte';
 
     import KAutoComplete from '$lib/components/custom/KAutoComplete.svelte';
@@ -19,35 +18,23 @@
         removeEmptyFields, searchStates,
         Mode
     } from '$lib/utils/common';
+    import { TOAST_UPDATES, type ToastMessage, ToastMessageType } from '$lib/utils/stores';
 
     let signatureInputComp: any;
-    let signatureInputElement: any;
-    $: {
-        if (signatureInputComp) {
-            signatureInputElement = signatureInputComp.element();
-        }
-    };
+    let signatureFileDetails: FileDetails = $state({
+        isObjectUrlCreated: false
+	});
 
     let iconInputComp: any;
-    let iconInputElement: any;
-    $: {
-        if (iconInputComp) {
-            iconInputElement = iconInputComp.element();
-        }
-    };
-
-    let signatureFileDetails: FileDetails = {
+    let iconFileDetails: FileDetails = $state({
 		isObjectUrlCreated: false
-	};
-    let iconFileDetails: FileDetails = {
-		isObjectUrlCreated: false
-	};
+	});
 
-    let formData = getInitialObject(BranchOwnerDetailsSchema);
-    let validationMessages = Object.assign({}, formData);
-
-    let qrCodeUrl: string;
-    let mode: Mode = Mode.ADD;
+    let formData = $state(getInitialObject(BranchOwnerDetailsSchema));
+    let validationMessages = $state(getInitialObject(BranchOwnerDetailsSchema));
+    let qrCodeUrl: string = $state("");
+    let mode: Mode = $state(Mode.ADD);
+    let qrCodeAlertOpen: boolean = $state(false);
 
     let stateData = {
         src: searchStates,
@@ -55,8 +42,6 @@
     }
 
     const onStateSelection = (event: any) => {
-        console.log("Selected state", event);
-
         let stateDetails = event.detail as StateListType;
         formData.state_id = stateDetails.id as string;
     } 
@@ -73,7 +58,13 @@
                     qrCodeUrl = URL.createObjectURL(blob);
                 })
                 .catch((err) => {
-                    console.log(err);
+                    qrCodeAlertOpen = false;
+                    let toastData: ToastMessage = {
+                        title: 'Error',
+                        description: `Error while generating QR code: ${err}`,
+                        type: ToastMessageType.ERROR
+                    };
+                    TOAST_UPDATES.set(toastData);
                 });
         } else {
             URL.revokeObjectURL(qrCodeUrl);
@@ -83,11 +74,11 @@
     }
 
     function openSignFileDialogue() {
-        signatureInputElement.click();
+        signatureInputComp.element()?.click();
     }
 
     function openIconFileDialogue() {
-        iconInputElement.click();
+        iconInputComp.element()?.click();
     }
 
     async function onSignatureChanged(evt: any) {
@@ -150,14 +141,18 @@
                 }
             })
             .catch((err: string) => {
-                console.error(err)
+                let toastData: ToastMessage = {
+					title: 'Error',
+					description: `Error while loading data: ${err}`,
+					type: ToastMessageType.ERROR
+				};
+                TOAST_UPDATES.set(toastData);
             });
     })
 
     const save = async () => {
         formData = removeEmptyFields(formData) as BranchOwnerDetailsType;
         let zResult = await BranchOwnerDetailsSchema.safeParseAsync(formData);
-        console.log(zResult);
 
         validationMessages = {} as BranchOwnerDetailsType;
         if (!zResult.success) {
@@ -172,39 +167,33 @@
         }
 
         let validatedData = zResult.data;
-        console.log(validatedData);
         // convert all dates to ISO-8601 string
         dateToISOString(validatedData);
 
         const tauriCommand = mode == Mode.UPDATE ? "update_branch_owner_details" : "save_branch_owner_details";
         const parameter = mode == Mode.UPDATE ? { bod: validatedData } : { newBod: validatedData };
+        const action = mode == Mode.ADD ? 'save' : 'update';
 
         invoke(tauriCommand, parameter)
             .then((_) => {
-                let toastData = {
+                let toastData: ToastMessage = {
 					title: 'Success',
-					description: `Data ${mode == Mode.ADD ? 'saved' : 'updated'} successfully`,
-					color: 'bg-green-500'
+					description: `Data ${action}d successfully`,
+					type: ToastMessageType.SUCCESS
 				};
-
-				addToast({
-					data: toastData
-				})
+                TOAST_UPDATES.set(toastData);
 
                 if (mode == Mode.ADD) {
                     mode = Mode.UPDATE;
                 }
             })
             .catch((err) => {
-                let toastData = {
+                let toastData: ToastMessage = {
 					title: 'Error',
-					description: err,
-					color: 'bg-red-500'
+					description: `Error while ${action}: ${err}`,
+					type: ToastMessageType.ERROR
 				};
-
-				addToast({
-					data: toastData
-				})
+                TOAST_UPDATES.set(toastData);
             })
     }
 </script>
@@ -313,7 +302,7 @@
                             bind:value={formData.address4}
                             threshold={2}
                             debounce={700}
-                            on:selection={onStateSelection}
+                            onSelection={onStateSelection}
                             class="h-8 px-2 appearance-none"
                             data-validate
                         />
@@ -462,12 +451,11 @@
                     <KField
                         label="&nbsp;"
                     >
-                        <AlertDialog.Root onOpenChange={generateQRCode}>
-                            <AlertDialog.Trigger asChild let:builder>
+                        <AlertDialog.Root onOpenChange={generateQRCode} bind:open={qrCodeAlertOpen}>
+                            <AlertDialog.Trigger>
                                 <Button
-                                    builders={[builder]}
                                     variant="ghost"
-                                    class="h-8 px-1"
+                                    class="h-8 w-8 px-1"
                                     disabled={!formData.upi_id}
                                 >
                                     <QrCode size={20} />
@@ -490,7 +478,7 @@
                                     </AlertDialog.Description>
                                 </AlertDialog.Header>
                                 <AlertDialog.Footer>
-                                    <AlertDialog.Action>OK</AlertDialog.Action>
+                                    <AlertDialog.Cancel>OK</AlertDialog.Cancel>
                                 </AlertDialog.Footer>
                             </AlertDialog.Content>
                         </AlertDialog.Root>
@@ -505,7 +493,7 @@
                     >
                         <Button
                             variant="outline"
-                            on:click={openSignFileDialogue}
+                            onclick={openSignFileDialogue}
                             class="w-full h-8"
                             data-validate
                         >
@@ -517,18 +505,17 @@
                             multiple={false}
                             accept="image/*"
                             bind:this={signatureInputComp}
-                            on:change={onSignatureChanged}
+                            onchange={onSignatureChanged}
                         />
                     </KField>
                     <KField
                         label="&nbsp;"
                     >
                         <AlertDialog.Root onOpenChange={loadSignObjectUrl}>
-                            <AlertDialog.Trigger asChild let:builder>
+                            <AlertDialog.Trigger>
                                 <Button
-                                    builders={[builder]}
                                     variant="ghost"
-                                    class="h-8 px-1"
+                                    class="h-8 w-8 px-1"
                                     disabled={!formData.signatory}
                                 >
                                     <Image size={20} />
@@ -552,7 +539,7 @@
                                     </AlertDialog.Description>
                                 </AlertDialog.Header>
                                 <AlertDialog.Footer>
-                                    <AlertDialog.Action>OK</AlertDialog.Action>
+                                    <AlertDialog.Cancel>OK</AlertDialog.Cancel>
                                 </AlertDialog.Footer>
                             </AlertDialog.Content>
                         </AlertDialog.Root>
@@ -567,7 +554,7 @@
                     >
                         <Button
                             variant="outline"
-                            on:click={openIconFileDialogue}
+                            onclick={openIconFileDialogue}
                             class="w-full h-8"
                             data-validate
                         >
@@ -579,18 +566,17 @@
                             multiple={false}
                             accept="image/*"
                             bind:this={iconInputComp}
-                            on:change={onIconChanged}
+                            onchange={onIconChanged}
                         />
                     </KField>
                     <KField
                         label="&nbsp;"
                     >
                         <AlertDialog.Root onOpenChange={loadIconObjectUrl}>
-                            <AlertDialog.Trigger asChild let:builder>
+                            <AlertDialog.Trigger>
                                 <Button
-                                    builders={[builder]}
                                     variant="ghost"
-                                    class="h-8 px-1"
+                                    class="h-8 w-8 px-1"
                                     disabled={!formData.icon}
                                 >
                                     <Image size={20} />
@@ -614,7 +600,7 @@
                                     </AlertDialog.Description>
                                 </AlertDialog.Header>
                                 <AlertDialog.Footer>
-                                    <AlertDialog.Action>OK</AlertDialog.Action>
+                                    <AlertDialog.Cancel>OK</AlertDialog.Cancel>
                                 </AlertDialog.Footer>
                             </AlertDialog.Content>
                         </AlertDialog.Root>
@@ -623,7 +609,7 @@
             </div>
         </div>
         <div id="actionButtons" class="px-4 pt-4 pb-3 h-full flex gap-3 items-start">
-            <Button variant="secondary" on:click={save}>{mode == Mode.ADD ? "Save" : "Update"}</Button>
+            <Button variant="secondary" onclick={save}>{mode == Mode.ADD ? "Save" : "Update"}</Button>
         </div>
     </ScrollArea>
 </div>

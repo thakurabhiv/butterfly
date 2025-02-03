@@ -7,6 +7,7 @@
     import TaxDetails from "$lib/app/forms/TaxDetails.svelte";
     import ProductDetails from "$lib/app/forms/ProductDetails.svelte";
     import VendorDetails from "$lib/app/forms/VendorDetails.svelte";
+    import BranchOwnerDetails from "$lib/app/forms/BranchOwnerDetails.svelte";
   
     let breadcrumbElements: String[] = ["Master", "Tax Details"];
   </script>
@@ -43,7 +44,8 @@
             <!-- <Separator /> -->
             <!-- <TaxDetails/> -->
             <!-- <ProductDetails/> -->
-            <VendorDetails />
+            <!-- <VendorDetails /> -->
+            <BranchOwnerDetails />
             <!-- <div class="grid auto-rows-min gap-4 md:grid-cols-3">
               <div class="bg-muted/50 aspect-video rounded-xl"></div>
               <div class="bg-muted/50 aspect-video rounded-xl"></div>
