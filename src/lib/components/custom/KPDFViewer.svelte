@@ -2,7 +2,8 @@
 	import * as PDFJS from 'pdfjs-dist';
 
 	// set worker js path
-    PDFJS.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.js', import.meta.url) as unknown as string;
+    // PDFJS.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.js', import.meta.url) as unknown as string;
+	PDFJS.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).toString();
 </script>
 <script lang="ts">
 	import { tick, onMount, createEventDispatcher } from 'svelte';

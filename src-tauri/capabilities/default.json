@@ -6,6 +6,17 @@
     "main"
   ],
   "permissions": [
-    "core:default"
+    "core:default",
+    {
+      "identifier": "shell:allow-spawn",
+      "allow": [
+        {
+          "name": "binaries/goservices",
+          "sidecar": true
+        }
+      ]
+    },
+    "shell:allow-open",
+    "shell:allow-spawn"
   ]
 }

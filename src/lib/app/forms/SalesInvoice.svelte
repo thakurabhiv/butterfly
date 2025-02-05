@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { invoke } from '@tauri-apps/api';
+    import { invoke } from '@tauri-apps/api/core';
     import { onMount, tick } from 'svelte';
 
     import { Button } from '$lib/components/ui/button';
@@ -53,7 +53,7 @@
     let financialYearPlaceHolder = "Financial Year";
     let financialYear = $state("");
 	const financialYearTriggerContent = $derived(
-		financialYears.find((f) => f.value == `financialYear`)?.label ?? financialYearPlaceHolder
+		financialYears.find((f) => f.value == financialYear)?.label ?? financialYearPlaceHolder
 	);
 	let selectedFinancialYear = { label: financialYearPlaceHolder, value: undefined };
     let productNameInput: KAutoComplete;
@@ -71,20 +71,20 @@
     let taxDetails = $state({} as TaxDetailsType);
 
     let vendorFormData: VendorDetailsType = $state(getInitialObject(VendorDetailsSchema));
-    $effect(() => {
+    /* $effect(() => {
         if (vendorFormData && !vendorFormData.vendor_name) {
             vendorFormData = {} as VendorDetailsType;
             taxDetails = {} as TaxDetailsType;
         }
-    });
+    }); */
 
     let productFormData: ProductDetailsType = $state(getInitialObject(ProductDetailsSchema));
-    $effect(() => {
+    /* $effect(() => {
         if (productFormData && !productFormData.short_name) {
             productFormData = {} as ProductDetailsType;
             invoiceProductData = {} as InvoiceProductType;
         }
-    });
+    }); */
 
     let invoiceSummaryFormData: InvoiceSummaryType = $state(getInitialObject(InvoiceSummarySchema));
     let invoiceSummaryValidationMessages = $state({} as InvoiceSummaryType);
@@ -116,11 +116,11 @@
     }
 
     const onInvoiceNumberSelection = (event: any) => {
-        const invoiceSummary = event.detail as InvoiceSummaryType;
-        invoiceMode = Mode.UPDATE;
-
+        const invoiceSummary = event.data as InvoiceSummaryType;
+        
         invoke("get_invoice_with_details", { invoiceSummary })
-            .then((allDetails: any) => {
+        .then((allDetails: any) => {
+                invoiceMode = Mode.UPDATE;
                 let [ summary, vendor, __taxDetails, productList ] = allDetails;
                 let financialYear = summary.financial_year;
                 selectedFinancialYear = { label: financialYear, value: financialYear };
@@ -150,8 +150,14 @@
                 restrictInvoiceEntry = true;
                 showInvoice = true;
             })
-            .catch((reason) => {
-                console.error(reason);
+            .catch((err) => {
+                const toastMessage: ToastMessage = {
+                    title: `Error`,
+                    description: `Error while fetching sales invoice: ${err}`,
+                    type: ToastMessageType.ERROR
+                }
+                TOAST_UPDATES.set(toastMessage);
+
                 invoiceMode = Mode.ADD;
             });
     }
@@ -159,7 +165,7 @@
     const onFinancialYearSelection = async (value: any) => {
         // first need to check whether tax details entered for particular financial year
         // otherwise invoice should not go through
-        const taxDetailsFound = await invoke('has_tax_details_for', { fy: value.value });
+        const taxDetailsFound = await invoke('has_tax_details_for', { fy: value });
         if (!taxDetailsFound) {
             const toastMessage: ToastMessage = {
                 title: `No tax details for ${value.value}`,
@@ -172,7 +178,7 @@
             return;
         }
 
-        invoiceSummaryFormData.financial_year = value.value as string
+        invoiceSummaryFormData.financial_year = value as string;
         const financialYear = invoiceSummaryFormData.financial_year.replace("-", "")
 
         invoke('next_invoice_id', { fy: financialYear })
@@ -184,14 +190,14 @@
     }
 
     const onVendorSelection = (event: any) => {
-        vendorFormData = event.detail as VendorDetailsType;
+        vendorFormData = event.data as VendorDetailsType;
         invoiceSummaryFormData.vendor_id = vendorFormData.vendor_id as string;
 
         loadTaxDetails();
     }
 
     const onProductSelection = (event: any) => {
-        productFormData = event.detail as ProductDetailsType;
+        productFormData = event.data as ProductDetailsType;
 
         log(JSON.stringify(productFormData) + "\n");
         invoiceProductData.product_id = productFormData.product_id;
@@ -359,7 +365,14 @@
                     log(`Sidecar [binaries/goservices] already started with process id ${status.pid}\n`);
                 }
             })
-            .catch(console.error);
+            .catch((err) => {
+                const toastMessage: ToastMessage = {
+                    title: "Error",
+                    description: err,
+                    type: ToastMessageType.ERROR
+                }
+                TOAST_UPDATES.set(toastMessage);
+            });
     }
 
     const calculateTaxableAmount = () => {
@@ -480,9 +493,9 @@
         { key: "amount", name: "Amount", type: ColumnType.Amount },
         { key: "no_of_bags", name: "No. Of Bags" },
     ];
-    let productData: z.infer<typeof InvoiceProductSchema>[] = [];
-    let totalAmount = 0;
-    let displayTotal = false;
+    let productData: z.infer<typeof InvoiceProductSchema>[] = $state([]);
+    let totalAmount = $state(0);
+    let displayTotal = $state(false);
 
     const onProductDataChanged = () => {
         if ((displayTotal = productData.length > 0)) {
@@ -496,8 +509,8 @@
         }
     }
 
-    let invoiceName = `Invoice_${invoiceSummaryFormData.invoice_number}.pdf`;
-    let invoicePDFBlob: Blob;
+    let invoiceName = $derived(`Invoice_${invoiceSummaryFormData.invoice_number}.pdf`);
+    let invoicePDFBlob: Blob = $state(null as unknown as Blob);
     const openInvoice = async () => {
         const invoicePayload = await buildInvoicePayload();
 
@@ -505,8 +518,7 @@
             .then((value) => {
                 openInvoiceDialog = true;
                 // wait for 200ms, for smooth animation of sheet 
-                time(250).then(() => invoicePDFBlob = value);
-                
+                time(250).then(() => invoicePDFBlob = value);      
             })
             .catch((reason: any) => {
                 const errMsg = reason && Object.hasOwn(reason, "error") ? reason.error : reason;
@@ -580,7 +592,7 @@
                         data={invoiceAutoCompleteData}
                         threshold={3}
                         debounce={700}
-                        on:selection={onInvoiceNumberSelection}
+                        onSelection={onInvoiceNumberSelection}
                         class="h-8 px-2"
                         data-validate
                     />
@@ -612,7 +624,7 @@
                         data={vendorNameAutoCompleteData}
                         threshold={2}
                         debounce={700}
-                        on:selection={onVendorSelection}
+                        onSelection={onVendorSelection}
                         disabled={restrictInvoiceEntry}
                         class="h-8 px-2"
                         data-validate
@@ -679,7 +691,7 @@
                                 data={productNameAutoCompleteData}
                                 threshold={2}
                                 debounce={700}
-                                on:selection={onProductSelection}
+                                onSelection={onProductSelection}
                                 class="h-8 px-2"
                                 data-validate
                             />
@@ -768,8 +780,8 @@
                         data={productData}
                         allowDelete={true}
                         allowEdit={true}
-                        on:edit={onProductEdit}
-                        on:delete={onProductDelete}
+                        onEdit={onProductEdit}
+                        onDelete={onProductDelete}
                     />
                 </ScrollArea>
             </div>

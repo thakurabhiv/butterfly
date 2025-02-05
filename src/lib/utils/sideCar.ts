@@ -1,4 +1,4 @@
-import { Command, type Child } from '@tauri-apps/api/shell';
+import { Command, type Child } from '@tauri-apps/plugin-shell';
 import { log } from '$lib/utils/common';
 
 let SPAWNED_PROCESSES_MAP: { [key: string]: Child } = {}
@@ -49,7 +49,7 @@ const startSidecar = async (sideCarName: string): Promise<SideCarStatus> => {
     }
 }
 
-const addProcessListeners = (command: Command, sideCarName: string) => {
+const addProcessListeners = (command: Command<string>, sideCarName: string) => {
     command.on("close", () => {
         log(`[${sideCarName}] Service terminated\n`);
     })
