@@ -2,27 +2,44 @@
 	import * as Collapsible from "$lib/components/ui/collapsible/index.js";
 	import * as Sidebar from "$lib/components/ui/sidebar/index.js";
 	import ChevronRight from "lucide-svelte/icons/chevron-right";
+	import { type Component } from "svelte";
+
+	type SubMenuItem = {
+		title: string;
+		component: Component;
+		isActive?: boolean,
+	}
 
 	let {
 		items,
+		component = $bindable(),
+		breadcrumbElements = $bindable()
 	}: {
 		items: {
 			title: string;
 			url: string;
-			// this should be `Component` after lucide-svelte updates types
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			icon?: any;
 			isActive?: boolean;
-			items?: {
-				title: string;
-				url: string;
-			}[];
-		}[];
+			items?: SubMenuItem[];
+		}[],
+		component: Component;
+		breadcrumbElements: string[];
 	} = $props();
+
+	let selectedMenu = $state("");
+	let selectedIdx = $state(-1);
+	const onSubMenuClick = (menuItem: SubMenuItem, menuName: string, idx: number) => {
+		component = menuItem.component;
+
+		selectedMenu = menuName;
+		selectedIdx = idx;
+
+		breadcrumbElements = [menuName, menuItem.title];
+	};
 </script>
 
 <Sidebar.Group>
-	<Sidebar.GroupLabel>Platform</Sidebar.GroupLabel>
+	<Sidebar.GroupLabel>Menus</Sidebar.GroupLabel>
 	<Sidebar.Menu>
 		{#each items as mainItem (mainItem.title)}
 			<Collapsible.Root open={mainItem.isActive} class="group/collapsible">
@@ -47,11 +64,11 @@
 						<Collapsible.Content>
 							{#if mainItem.items}
 								<Sidebar.MenuSub>
-									{#each mainItem.items as subItem (subItem.title)}
+									{#each mainItem.items as subItem, idx}
 										<Sidebar.MenuSubItem>
-											<Sidebar.MenuSubButton>
+											<Sidebar.MenuSubButton isActive={selectedMenu == mainItem.title && selectedIdx == idx}>
 												{#snippet child({ props })}
-													<a href={subItem.url} {...props}>
+													<a href={"#"} onclick={() => {onSubMenuClick(subItem, mainItem.title, idx)}} {...props}>
 														<span>{subItem.title}</span>
 													</a>
 												{/snippet}

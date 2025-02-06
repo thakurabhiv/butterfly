@@ -3,18 +3,15 @@
     import AppSidebar from "$lib/components/app-sidebar.svelte";
     import Separator from "$lib/components/ui/separator/separator.svelte";
     import * as Breadcrumb from "$lib/components/ui/breadcrumb/index";
-
-    import TaxDetails from "$lib/app/forms/TaxDetails.svelte";
-    import ProductDetails from "$lib/app/forms/ProductDetails.svelte";
-    import VendorDetails from "$lib/app/forms/VendorDetails.svelte";
-    import BranchOwnerDetails from "$lib/app/forms/BranchOwnerDetails.svelte";
-    import SalesInvoice from "$lib/app/forms/SalesInvoice.svelte";
+	import type { Component } from "svelte";
   
-    let breadcrumbElements: String[] = ["Master", "Tax Details"];
+    let breadcrumbElements: string[] = $state([]);
+
+    let FormComponent: any | Component = $state();
   </script>
   
   <Sidebar.Provider>
-      <AppSidebar/>
+      <AppSidebar bind:component={FormComponent} bind:breadcrumbElements />
       <Sidebar.Inset class="h-screen">
           <header
             class="flex h-10 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 fixed"
@@ -40,20 +37,8 @@
               </Breadcrumb.Root>
             </div>
           </header>
-          <!-- <div class="flex flex-1 flex-col pt-0"> -->
           <div class="w-full h-full pt-10">
-            <!-- <Separator /> -->
-            <!-- <TaxDetails/> -->
-            <!-- <ProductDetails/> -->
-            <!-- <VendorDetails /> -->
-            <!-- <BranchOwnerDetails /> -->
-            <SalesInvoice/>
-            <!-- <div class="grid auto-rows-min gap-4 md:grid-cols-3">
-              <div class="bg-muted/50 aspect-video rounded-xl"></div>
-              <div class="bg-muted/50 aspect-video rounded-xl"></div>
-              <div class="bg-muted/50 aspect-video rounded-xl"></div>
-            </div>
-            <div class="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min"></div> -->
+            <FormComponent />
           </div>
         </Sidebar.Inset>
   </Sidebar.Provider>

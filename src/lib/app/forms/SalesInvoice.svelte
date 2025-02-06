@@ -55,7 +55,6 @@
 	const financialYearTriggerContent = $derived(
 		financialYears.find((f) => f.value == financialYear)?.label ?? financialYearPlaceHolder
 	);
-	let selectedFinancialYear = { label: financialYearPlaceHolder, value: undefined };
     let productNameInput: KAutoComplete;
     let productQuantityInput: Input;
 
@@ -122,8 +121,7 @@
         .then((allDetails: any) => {
                 invoiceMode = Mode.UPDATE;
                 let [ summary, vendor, __taxDetails, productList ] = allDetails;
-                let financialYear = summary.financial_year;
-                selectedFinancialYear = { label: financialYear, value: financialYear };
+                financialYear = summary.financial_year;
 
                 summary.invoice_date = getFormattedDateString(new Date(summary.invoice_date));
                 vendorFormData = vendor;
@@ -301,7 +299,7 @@
     }
 
     const resetAll = async () => {
-        selectedFinancialYear = { label: financialYearPlaceHolder, value: undefined };
+        financialYear = "";
         invoiceSummaryFormData = {} as InvoiceSummaryType;
         setupInvoiceDate();
 
@@ -409,11 +407,6 @@
     }
 
     const onPackagingChargesInput = debounceWrapper(calculateAllAmounts, 300);
-
-    /* const resetCalculatedAmounts = () => {
-        invoiceSummaryFormData.taxable_amount = "0";
-        invoiceSummaryFormData.total_amount = "0";
-    } */
 
     const save = () => {
         const summaryData = removeEmptyFields(invoiceSummaryFormData);
@@ -881,7 +874,7 @@
                     <KPDFViewer
                         name={invoiceName}
                         src={invoicePDFBlob}
-                        on:printend={() => openInvoiceDialog = false}
+                        onPrintEnd={() => openInvoiceDialog = false}
                     />
                 {:else}
                     <div>Loading invoice</div>

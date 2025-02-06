@@ -1,15 +1,15 @@
 <script lang="ts" module>
 	import AudioWaveform from "lucide-svelte/icons/audio-waveform";
-	import BookOpen from "lucide-svelte/icons/book-open";
-	import Bot from "lucide-svelte/icons/bot";
 	import ChartPie from "lucide-svelte/icons/chart-pie";
 	import Command from "lucide-svelte/icons/command";
 	import Frame from "lucide-svelte/icons/frame";
 	import GalleryVerticalEnd from "lucide-svelte/icons/gallery-vertical-end";
 	import Map from "lucide-svelte/icons/map";
-	import Settings2 from "lucide-svelte/icons/settings-2";
-	import SquareTerminal from "lucide-svelte/icons/square-terminal";
 	import userIcon from "$lib/assets/shadcn.jpg";
+	import Masters from "lucide-svelte/icons/file-pen-line";
+	import Transactions from "lucide-svelte/icons/arrow-left-right";
+	
+	import * as Forms from "$lib/app/forms";
 
 	// This is sample data.
 	const data = {
@@ -37,90 +37,40 @@
 		],
 		navMain: [
 			{
-				title: "Master",
+				title: "Masters",
 				url: "#",
-				icon: SquareTerminal,
+				icon: Masters,
 				isActive: true,
 				items: [
 					{
-						title: "Tax",
-						url: "#",
+						title: "Branch Owner Details",
+						component: Forms.BranchOwnerDetails,
 					},
 					{
-						title: "Product",
-						url: "#",
+						title: "Tax Master",
+						component: Forms.TaxDetails,
 					},
 					{
-						title: "Vendor",
-						url: "#",
+						title: "Product Master",
+						component: Forms.ProductDetails,
+					},
+					{
+						title: "Vendor Master",
+						component: Forms.VendorDetails,
 					},
 				],
 			},
 			{
-				title: "Models",
+				title: "Transactions",
 				url: "#",
-				icon: Bot,
+				icon: Transactions,
 				items: [
 					{
-						title: "Genesis",
-						url: "#",
-					},
-					{
-						title: "Explorer",
-						url: "#",
-					},
-					{
-						title: "Quantum",
-						url: "#",
-					},
+						title: "Sales Invoice",
+						component: Forms.SalesInvoice,
+					}
 				],
-			},
-			{
-				title: "Documentation",
-				url: "#",
-				icon: BookOpen,
-				items: [
-					{
-						title: "Introduction",
-						url: "#",
-					},
-					{
-						title: "Get Started",
-						url: "#",
-					},
-					{
-						title: "Tutorials",
-						url: "#",
-					},
-					{
-						title: "Changelog",
-						url: "#",
-					},
-				],
-			},
-			{
-				title: "Settings",
-				url: "#",
-				icon: Settings2,
-				items: [
-					{
-						title: "General",
-						url: "#",
-					},
-					{
-						title: "Team",
-						url: "#",
-					},
-					{
-						title: "Billing",
-						url: "#",
-					},
-					{
-						title: "Limits",
-						url: "#",
-					},
-				],
-			},
+			}
 		],
 		projects: [
 			{
@@ -148,13 +98,15 @@
 	import NavUser from "$lib/components/nav-user.svelte";
 	// import TeamSwitcher from "$lib/components/team-switcher.svelte";
 	import * as Sidebar from "$lib/components/ui/sidebar/index.js";
-	import type { ComponentProps } from "svelte";
+	import type { Component, ComponentProps } from "svelte";
 
 	let {
 		ref = $bindable(null),
 		collapsible = "icon",
+		component = $bindable(),
+		breadcrumbElements = $bindable(),
 		...restProps
-	}: ComponentProps<typeof Sidebar.Root> = $props();
+	}: ComponentProps<typeof Sidebar.Root> & {  component: Component, breadcrumbElements: string[] } = $props();
 </script>
 
 <Sidebar.Root bind:ref {collapsible} {...restProps}>
@@ -162,7 +114,7 @@
 		<TeamSwitcher teams={data.teams} />
 	</Sidebar.Header> -->
 	<Sidebar.Content>
-		<NavMain items={data.navMain} />
+		<NavMain items={data.navMain} bind:component bind:breadcrumbElements />
 		<!-- <NavProjects projects={data.projects} /> -->
 	</Sidebar.Content>
 	<Sidebar.Footer>
