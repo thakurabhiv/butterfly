@@ -8,14 +8,16 @@
 	import userIcon from "$lib/assets/shadcn.jpg";
 	import Masters from "lucide-svelte/icons/file-pen-line";
 	import Transactions from "lucide-svelte/icons/arrow-left-right";
+	import ReportsIcon from "lucide-svelte/icons/list";
 	
 	import * as Forms from "$lib/app/forms";
+	import * as Reports from "$lib/app/reports";
 
 	// This is sample data.
 	const data = {
 		user: {
-			name: "shadcn",
-			email: "m@example.com",
+			name: "Shubham Traders",
+			email: "Usha Vilas Naik",
 			avatar: userIcon,
 		},
 		teams: [
@@ -68,6 +70,17 @@
 					{
 						title: "Sales Invoice",
 						component: Forms.SalesInvoice,
+					}
+				],
+			},
+			{
+				title: "Reports",
+				url: "#",
+				icon: ReportsIcon,
+				items: [
+					{
+						title: "Sales Report",
+						component: Reports.SalesReport,
 					}
 				],
 			}

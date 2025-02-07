@@ -2,11 +2,11 @@
   import Login from "$lib/app/Login.svelte";
   import Home from "$lib/app/Home.svelte";
 
-  let isLoggedIn = false;
+  import { LOGIN_STATE } from "$lib/app/state.svelte";
 </script>
 
-{#if !isLoggedIn}
-  <Login bind:isLoggedIn />
+{#if !LOGIN_STATE.isLoggedIn}
+  <Login/>
 {:else}
   <Home/>
 {/if}

@@ -22,12 +22,6 @@
     let gridData = $state([] as ProductDetailsType[]);
     let mode: string = $state("SAVE");
 
-    // $effect(() => {
-    //     if (formData && !formData.short_name) {
-    //         reset();
-    //     }
-    // })
-
     let columns: Column[] = [
         { key: "short_name", name: "Product Name" },
         { key: "hsn_sac", name: "HSN" },
@@ -137,6 +131,7 @@
                             threshold={2}
                             debounce={500}
                             onSelection={onSelection}
+                            onEmpty={reset}
                         />
                     </KField>
                     <KField

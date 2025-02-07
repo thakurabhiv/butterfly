@@ -3,7 +3,7 @@
     import AppSidebar from "$lib/components/app-sidebar.svelte";
     import Separator from "$lib/components/ui/separator/separator.svelte";
     import * as Breadcrumb from "$lib/components/ui/breadcrumb/index";
-	import type { Component } from "svelte";
+	  import type { Component } from "svelte";
   
     let breadcrumbElements: string[] = $state([]);
 

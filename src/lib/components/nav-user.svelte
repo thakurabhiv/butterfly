@@ -3,15 +3,26 @@
 	import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
 	import * as Sidebar from "$lib/components/ui/sidebar/index.js";
 	import { useSidebar } from "$lib/components/ui/sidebar/index.js";
-	import BadgeCheck from "lucide-svelte/icons/badge-check";
-	import Bell from "lucide-svelte/icons/bell";
+	// import BadgeCheck from "lucide-svelte/icons/badge-check";
+	// import Bell from "lucide-svelte/icons/bell";
 	import ChevronsUpDown from "lucide-svelte/icons/chevrons-up-down";
-	import CreditCard from "lucide-svelte/icons/credit-card";
+	// import CreditCard from "lucide-svelte/icons/credit-card";
 	import LogOut from "lucide-svelte/icons/log-out";
-	import Sparkles from "lucide-svelte/icons/sparkles";
+	// import Sparkles from "lucide-svelte/icons/sparkles";
+	import { setMode } from "mode-watcher";
+	import { LOGIN_STATE } from "$lib/app/state.svelte";
 
 	let { user }: { user: { name: string; email: string; avatar: string } } = $props();
 	const sidebar = useSidebar();
+
+	let theme = $state("dark");
+	$effect(() => {
+		setMode(theme as any);
+	})
+
+	const logout = () => {
+		LOGIN_STATE.isLoggedIn = false;
+	};
 </script>
 
 <Sidebar.Menu>
@@ -42,7 +53,7 @@
 				align="end"
 				sideOffset={4}
 			>
-				<DropdownMenu.Label class="p-0 font-normal">
+				<!-- <DropdownMenu.Label class="p-0 font-normal">
 					<div class="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
 						<Avatar.Root class="h-8 w-8 rounded-lg">
 							<Avatar.Image src={user.avatar} alt={user.name} />
@@ -54,15 +65,15 @@
 						</div>
 					</div>
 				</DropdownMenu.Label>
-				<DropdownMenu.Separator />
-				<DropdownMenu.Group>
+				<DropdownMenu.Separator /> -->
+				<!-- <DropdownMenu.Group>
 					<DropdownMenu.Item>
 						<Sparkles />
 						Upgrade to Pro
 					</DropdownMenu.Item>
 				</DropdownMenu.Group>
-				<DropdownMenu.Separator />
-				<DropdownMenu.Group>
+				<DropdownMenu.Separator /> -->
+				<!-- <DropdownMenu.Group>
 					<DropdownMenu.Item>
 						<BadgeCheck />
 						Account
@@ -76,8 +87,21 @@
 						Notifications
 					</DropdownMenu.Item>
 				</DropdownMenu.Group>
+				<DropdownMenu.Separator /> -->
+				<DropdownMenu.Group>
+					<DropdownMenu.Sub>
+						<DropdownMenu.SubTrigger>Theme</DropdownMenu.SubTrigger>
+						<DropdownMenu.SubContent>
+							<DropdownMenu.RadioGroup bind:value={theme}>
+								<DropdownMenu.RadioItem value="dark">Dark</DropdownMenu.RadioItem >
+								<DropdownMenu.RadioItem value="light">Light</DropdownMenu.RadioItem >
+								<DropdownMenu.RadioItem value="system">System</DropdownMenu.RadioItem >
+							</DropdownMenu.RadioGroup	>
+						</DropdownMenu.SubContent>
+					</DropdownMenu.Sub>
+				</DropdownMenu.Group>
 				<DropdownMenu.Separator />
-				<DropdownMenu.Item>
+				<DropdownMenu.Item onSelect={logout}>
 					<LogOut />
 					Log out
 				</DropdownMenu.Item>

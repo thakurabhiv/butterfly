@@ -70,20 +70,16 @@
     let taxDetails = $state({} as TaxDetailsType);
 
     let vendorFormData: VendorDetailsType = $state(getInitialObject(VendorDetailsSchema));
-    /* $effect(() => {
-        if (vendorFormData && !vendorFormData.vendor_name) {
-            vendorFormData = {} as VendorDetailsType;
-            taxDetails = {} as TaxDetailsType;
-        }
-    }); */
+    const onVendorEmpty = () => {
+        vendorFormData = {} as VendorDetailsType;
+        taxDetails = {} as TaxDetailsType;
+    }
 
     let productFormData: ProductDetailsType = $state(getInitialObject(ProductDetailsSchema));
-    /* $effect(() => {
-        if (productFormData && !productFormData.short_name) {
-            productFormData = {} as ProductDetailsType;
-            invoiceProductData = {} as InvoiceProductType;
-        }
-    }); */
+    const onProductEmpty = () => {
+        productFormData = {} as ProductDetailsType;
+        invoiceProductData = {} as InvoiceProductType;
+    }
 
     let invoiceSummaryFormData: InvoiceSummaryType = $state(getInitialObject(InvoiceSummarySchema));
     let invoiceSummaryValidationMessages = $state({} as InvoiceSummaryType);
@@ -618,6 +614,7 @@
                         threshold={2}
                         debounce={700}
                         onSelection={onVendorSelection}
+                        onEmpty={onVendorEmpty}
                         disabled={restrictInvoiceEntry}
                         class="h-8 px-2"
                         data-validate
@@ -685,6 +682,7 @@
                                 threshold={2}
                                 debounce={700}
                                 onSelection={onProductSelection}
+                                onEmpty={onProductEmpty}
                                 class="h-8 px-2"
                                 data-validate
                             />

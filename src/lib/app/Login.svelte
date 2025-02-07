@@ -4,10 +4,9 @@
     import { Input } from '$lib/components/ui/input';
     import { Button } from '$lib/components/ui/button';
     import { Loader2, LogIn } from 'lucide-svelte';
+    import { LOGIN_STATE } from "$lib/app/state.svelte";
 
-    let { isLoggedIn = $bindable() } = $props();
-
-    let username = $state("abhishekvthakr");
+    let username = $state("admin");
     let password = $state("password");
 
     /**
@@ -35,7 +34,7 @@
         setTimeout(() => {
             isLoading = false
 
-            isLoggedIn = true
+            LOGIN_STATE.isLoggedIn = true
         }, 500)
     }
 </script>
