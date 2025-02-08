@@ -1,6 +1,6 @@
+use crate::models::{BranchOwnerDetail, NewBranchOwnerDetail};
 use diesel::prelude::*;
 use diesel::result::Error as DieselError;
-use crate::models::{ BranchOwnerDetail, NewBranchOwnerDetail };
 
 pub fn find_all(conn: &mut MysqlConnection) -> Result<Vec<BranchOwnerDetail>, DieselError> {
     use crate::schema::branch_owner_details::dsl::*;
@@ -11,7 +11,10 @@ pub fn find_all(conn: &mut MysqlConnection) -> Result<Vec<BranchOwnerDetail>, Di
         .load(conn)
 }
 
-pub fn save(new_bwd: NewBranchOwnerDetail, conn: &mut MysqlConnection) -> Result<usize, DieselError> {
+pub fn save(
+    new_bwd: NewBranchOwnerDetail,
+    conn: &mut MysqlConnection,
+) -> Result<usize, DieselError> {
     use crate::schema::branch_owner_details;
 
     diesel::insert_into(branch_owner_details::table)

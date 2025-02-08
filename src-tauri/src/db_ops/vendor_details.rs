@@ -1,6 +1,6 @@
+use crate::models::{NewVendorDetails, VendorDetail};
 use diesel::prelude::*;
 use diesel::result::Error as DieselError;
-use crate::models::{ VendorDetail, NewVendorDetails };
 
 pub fn search(query: String, conn: &mut MysqlConnection) -> Result<Vec<VendorDetail>, DieselError> {
     use crate::schema::vendor_details::dsl::*;
@@ -30,8 +30,8 @@ pub fn save(nvd: NewVendorDetails, conn: &mut MysqlConnection) -> Result<usize, 
 }
 
 pub fn update(vd: VendorDetail, conn: &mut MysqlConnection) -> Result<usize, DieselError> {
-    use crate::schema::vendor_details::dsl::*;
     use crate::schema::vendor_details;
+    use crate::schema::vendor_details::dsl::*;
 
     diesel::update(vendor_details::table)
         .filter(vendor_id.eq(vd.vendor_id))

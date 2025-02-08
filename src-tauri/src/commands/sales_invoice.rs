@@ -1,11 +1,11 @@
 use crate::{
     connection::establish_connection,
     db_ops::sales_invoice,
-    utils,
     models::{
-        NewInvoiceSummary, NewInvoiceDetail, InvoiceSummary, InvoiceDetail,
-        VendorDetail, InvoiceDetailsWithProduct, TaxDetail
+        InvoiceDetail, InvoiceDetailsWithProduct, InvoiceSummary, NewInvoiceDetail,
+        NewInvoiceSummary, TaxDetail, VendorDetail,
     },
+    utils,
 };
 
 #[tauri::command]
@@ -19,7 +19,8 @@ pub fn find_sales_invoice_number(query: String) -> Result<Vec<InvoiceSummary>, S
 pub fn sales_invoice_get_all_fy() -> Result<Vec<String>, String> {
     let mut conn = establish_connection().map_err(|err| err.to_string())?;
 
-    let mut fy_list = sales_invoice::get_all_financial_year_list(&mut conn).map_err(|err| err.to_string())?;
+    let mut fy_list =
+        sales_invoice::get_all_financial_year_list(&mut conn).map_err(|err| err.to_string())?;
 
     let curr_fy = utils::get_current_fy();
     if !fy_list.contains(&curr_fy) {
@@ -61,9 +62,18 @@ pub fn update_invoice_data(
 
 #[tauri::command]
 pub fn get_invoice_with_details(
-    invoice_summary: InvoiceSummary
-) -> Result<(InvoiceSummary, VendorDetail, TaxDetail, Vec<InvoiceDetailsWithProduct>), String> {
+    invoice_summary: InvoiceSummary,
+) -> Result<
+    (
+        InvoiceSummary,
+        VendorDetail,
+        TaxDetail,
+        Vec<InvoiceDetailsWithProduct>,
+    ),
+    String,
+> {
     let mut conn = establish_connection().map_err(|err| err.to_string())?;
 
-    sales_invoice::get_invoice_with_details(invoice_summary, &mut conn).map_err(|err| err.to_string())
+    sales_invoice::get_invoice_with_details(invoice_summary, &mut conn)
+        .map_err(|err| err.to_string())
 }

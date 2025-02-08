@@ -1,10 +1,10 @@
-use chrono;
 use crate::{
     connection::establish_connection,
-    models::{ TaxDetail, NewTaxDetails },
     db_ops::tax_details,
-    utils
+    models::{NewTaxDetails, TaxDetail},
+    utils,
 };
+use chrono;
 
 #[tauri::command]
 pub fn has_tax_details_for(fy: String) -> Result<bool, String> {
@@ -17,7 +17,8 @@ pub fn has_tax_details_for(fy: String) -> Result<bool, String> {
 pub fn find_all_tax_details(financial_year: String) -> Result<Vec<TaxDetail>, String> {
     let mut conn = establish_connection().unwrap();
 
-    tax_details::find_all(financial_year, &mut conn).map_err(|_| "Error while getting tax details".to_string())
+    tax_details::find_all(financial_year, &mut conn)
+        .map_err(|_| "Error while getting tax details".to_string())
 }
 
 #[tauri::command]
@@ -31,7 +32,8 @@ pub fn find_latest_tax_details(financial_year: String) -> Result<TaxDetail, Stri
 pub fn tax_details_get_all_fy() -> Result<Vec<String>, String> {
     let mut conn = establish_connection().map_err(|err| err.to_string())?;
 
-    let mut fy_list = tax_details::get_all_financial_year_list(&mut conn).map_err(|err| err.to_string())?;
+    let mut fy_list =
+        tax_details::get_all_financial_year_list(&mut conn).map_err(|err| err.to_string())?;
     let curr_fy = utils::get_current_fy();
     if !fy_list.contains(&curr_fy) {
         fy_list.push(curr_fy);

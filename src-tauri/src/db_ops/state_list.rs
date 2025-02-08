@@ -1,6 +1,6 @@
+use crate::models::StateList;
 use diesel::prelude::*;
 use diesel::result::Error as DieselError;
-use crate::models::StateList;
 
 pub fn search(query: String, conn: &mut MysqlConnection) -> Result<Vec<StateList>, DieselError> {
     use crate::schema::state_list::dsl::*;

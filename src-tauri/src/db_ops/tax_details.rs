@@ -1,6 +1,6 @@
+use crate::models::{NewTaxDetails, TaxDetail};
 use diesel::prelude::*;
 use diesel::result::Error as DieselError;
-use crate::models::{ TaxDetail, NewTaxDetails };
 
 pub fn has_tax_details_for(fy: String, conn: &mut MysqlConnection) -> Result<bool, DieselError> {
     use crate::schema::tax_details::dsl::*;
@@ -45,7 +45,10 @@ pub fn get_all_financial_year_list(conn: &mut MysqlConnection) -> Result<Vec<Str
         .load(conn)
 }
 
-pub fn save(new_tax_details: NewTaxDetails, conn: &mut MysqlConnection) -> Result<usize, DieselError> {
+pub fn save(
+    new_tax_details: NewTaxDetails,
+    conn: &mut MysqlConnection,
+) -> Result<usize, DieselError> {
     use crate::schema::tax_details;
 
     diesel::insert_into(tax_details::table)

@@ -1,15 +1,16 @@
 use fast_qr::convert::Builder;
+use fast_qr::convert::{image::ImageBuilder, Shape};
 use fast_qr::qr::QRBuilder;
-use fast_qr::convert::{ image::ImageBuilder, Shape };
 
 use crate::connection::establish_connection;
-use crate::db_ops::{ state_list, financial_year };
-use crate::models::{ StateList, FinancialYear };
+use crate::db_ops::{financial_year, state_list};
+use crate::models::{FinancialYear, StateList};
 
 #[tauri::command]
 pub fn get_qr_code(text: String, width: u32) -> Result<Vec<u8>, String> {
     let qr_code = QRBuilder::new(text)
-        .build().map_err(|err| err.to_string())?;
+        .build()
+        .map_err(|err| err.to_string())?;
 
     ImageBuilder::default()
         .shape(Shape::Square)

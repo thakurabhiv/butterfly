@@ -6,7 +6,7 @@ use bigdecimal::BigDecimal;
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 
-use serde::{ Serialize, Deserialize };
+use serde::{Deserialize, Serialize};
 
 use crate::schema::*;
 
@@ -78,7 +78,7 @@ pub struct NewBranchOwnerDetail {
 #[derive(Queryable, Selectable, Identifiable, Serialize, Deserialize, Debug, Default)]
 pub struct FinancialYear {
     pub id: i32,
-    pub financial_year: String
+    pub financial_year: String,
 }
 
 #[derive(Queryable, AsChangeset, Selectable, Default, Debug)]
@@ -105,7 +105,9 @@ pub struct NewIdSequence {
     pub modified_date: Option<NaiveDateTime>,
 }
 
-#[derive(Queryable, Selectable, Identifiable, AsChangeset, Associations, Serialize, Deserialize, Debug)]
+#[derive(
+    Queryable, Selectable, Identifiable, AsChangeset, Associations, Serialize, Deserialize, Debug,
+)]
 #[diesel(belongs_to(InvoiceSummary, foreign_key=invoice_id))]
 #[diesel(table_name = invoice_details)]
 #[diesel(check_for_backend(diesel::mysql::Mysql))]
@@ -218,7 +220,7 @@ pub struct SalesInvoiceWithDetails {
     #[serde(flatten)]
     pub summary: InvoiceSummary,
     pub vendor: VendorDetail,
-    pub details: Vec<InvoiceDetailsWithProduct>
+    pub details: Vec<InvoiceDetailsWithProduct>,
 }
 
 #[derive(Serialize)]
@@ -226,7 +228,7 @@ pub struct InvoiceDetailsWithProduct {
     #[serde(flatten)]
     pub invoice_detail: InvoiceDetail,
     #[serde(flatten)]
-    pub product_detail: ProductDetail
+    pub product_detail: ProductDetail,
 }
 
 #[derive(Queryable, Selectable, Identifiable, AsChangeset, Serialize, Deserialize, Debug)]
@@ -283,7 +285,7 @@ pub struct TaxDetail {
     pub financial_year: String,
     pub created_date: Option<NaiveDateTime>,
     pub modified_date: Option<NaiveDateTime>,
-    pub is_deleted: Option<bool>
+    pub is_deleted: Option<bool>,
 }
 
 #[derive(Insertable, Debug, Serialize, Deserialize, Default)]
@@ -299,7 +301,7 @@ pub struct NewTaxDetails {
     pub financial_year: String,
     pub created_date: Option<NaiveDateTime>,
     pub modified_date: Option<NaiveDateTime>,
-    pub is_deleted: Option<bool>
+    pub is_deleted: Option<bool>,
 }
 
 #[derive(Queryable, Selectable, Identifiable, AsChangeset, Serialize, Deserialize, Debug)]

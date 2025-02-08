@@ -59,7 +59,7 @@
     let productQuantityInput: Input;
 
     let restrictInvoiceEntry = $state(false);
-    let showInvoice = $state(true);
+    let showInvoice = $state(false);
     let openInvoiceDialog = $state(false);
 
     // based on this flag, we either save invoice data or update it
@@ -582,6 +582,7 @@
                         threshold={3}
                         debounce={700}
                         onSelection={onInvoiceNumberSelection}
+                        onEmpty={resetAll}
                         class="h-8 px-2"
                         data-validate
                     />

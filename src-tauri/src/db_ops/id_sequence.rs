@@ -1,8 +1,11 @@
+use crate::models::{IdSequence, NewIdSequence};
 use diesel::prelude::*;
 use diesel::result::Error as DieselError;
-use crate::models::{ IdSequence, NewIdSequence };
 
-pub fn find_first(id_seq: IdSequence, conn: &mut MysqlConnection) -> Result<IdSequence, DieselError> {
+pub fn find_first(
+    id_seq: IdSequence,
+    conn: &mut MysqlConnection,
+) -> Result<IdSequence, DieselError> {
     use crate::schema::id_sequence::dsl::*;
 
     id_sequence
@@ -23,7 +26,10 @@ pub fn save(new_id_seq: NewIdSequence, conn: &mut MysqlConnection) -> Result<usi
 }
 
 // for updating sequence number
-pub fn update_seq_number(id_seq: IdSequence, conn: &mut MysqlConnection) -> Result<usize, DieselError> {
+pub fn update_seq_number(
+    id_seq: IdSequence,
+    conn: &mut MysqlConnection,
+) -> Result<usize, DieselError> {
     use crate::schema::id_sequence;
     use crate::schema::id_sequence::dsl::*;
 
@@ -33,7 +39,7 @@ pub fn update_seq_number(id_seq: IdSequence, conn: &mut MysqlConnection) -> Resu
         .filter(sec_prefix.eq(id_seq.sec_prefix.clone()))
         .set((
             seq_number.eq(id_seq.seq_number),
-            modified_date.eq(id_seq.modified_date)
+            modified_date.eq(id_seq.modified_date),
         ))
         .execute(conn)
 }

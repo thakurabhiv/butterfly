@@ -1,7 +1,7 @@
 use crate::{
     connection::establish_connection,
-    models::{ ProductDetail, NewProductDetails },
-    db_ops::product_details
+    db_ops::product_details,
+    models::{NewProductDetails, ProductDetail},
 };
 
 #[tauri::command]
@@ -14,7 +14,7 @@ pub fn find_all_product_details() -> Result<Vec<ProductDetail>, String> {
 #[tauri::command]
 pub fn find_products(query: String) -> Result<Vec<ProductDetail>, String> {
     let mut conn = establish_connection().map_err(|err| err.to_string())?;
-    
+
     product_details::search(query, &mut conn).map_err(|err| err.to_string())
 }
 
@@ -28,7 +28,7 @@ pub fn get_multiple_products(product_ids: Vec<i32>) -> Result<Vec<ProductDetail>
 #[tauri::command]
 pub fn save_product_details(data: NewProductDetails) -> Result<usize, String> {
     let mut conn = establish_connection().map_err(|err| err.to_string())?;
-    
+
     product_details::save(data, &mut conn).map_err(|err| err.to_string())
 }
 

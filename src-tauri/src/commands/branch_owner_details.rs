@@ -1,7 +1,7 @@
 use crate::{
     connection::establish_connection,
-    models::{ BranchOwnerDetail, NewBranchOwnerDetail },
-    db_ops::branch_owner_details
+    db_ops::branch_owner_details,
+    models::{BranchOwnerDetail, NewBranchOwnerDetail},
 };
 
 #[tauri::command]
@@ -23,5 +23,5 @@ pub fn update_branch_owner_details(mut bod: BranchOwnerDetail) -> Result<usize, 
     let mut conn = establish_connection().map_err(|err| err.to_string())?;
 
     bod.modified_date = Some(chrono::Utc::now().naive_utc());
-    branch_owner_details::update(bod, &mut conn).map_err(|err| err.to_string()) 
+    branch_owner_details::update(bod, &mut conn).map_err(|err| err.to_string())
 }

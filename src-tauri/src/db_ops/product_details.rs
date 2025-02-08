@@ -1,6 +1,6 @@
+use crate::models::{NewProductDetails, ProductDetail};
 use diesel::prelude::*;
 use diesel::result::Error as DieselError;
-use crate::models::{ NewProductDetails, ProductDetail };
 
 pub fn find_all(conn: &mut MysqlConnection) -> Result<Vec<ProductDetail>, DieselError> {
     use crate::schema::product_details::dsl::*;
@@ -11,7 +11,10 @@ pub fn find_all(conn: &mut MysqlConnection) -> Result<Vec<ProductDetail>, Diesel
         .load(conn)
 }
 
-pub fn search(query: String, conn: &mut MysqlConnection) -> Result<Vec<ProductDetail>, DieselError> {
+pub fn search(
+    query: String,
+    conn: &mut MysqlConnection,
+) -> Result<Vec<ProductDetail>, DieselError> {
     use crate::schema::product_details::dsl::*;
 
     product_details
@@ -31,7 +34,10 @@ pub fn get_product(prod_id: i32, conn: &mut MysqlConnection) -> Result<ProductDe
         .first(conn)
 }
 
-pub fn get_multiple_products(product_ids: Vec<i32>, conn: &mut MysqlConnection) -> Result<Vec<ProductDetail>, DieselError> {
+pub fn get_multiple_products(
+    product_ids: Vec<i32>,
+    conn: &mut MysqlConnection,
+) -> Result<Vec<ProductDetail>, DieselError> {
     use crate::schema::product_details::dsl::*;
 
     product_details
@@ -40,7 +46,10 @@ pub fn get_multiple_products(product_ids: Vec<i32>, conn: &mut MysqlConnection) 
         .load(conn)
 }
 
-pub fn save(new_product_details: NewProductDetails, conn: &mut MysqlConnection) -> Result<usize, DieselError> {
+pub fn save(
+    new_product_details: NewProductDetails,
+    conn: &mut MysqlConnection,
+) -> Result<usize, DieselError> {
     use crate::schema::product_details;
 
     diesel::insert_into(product_details::table)

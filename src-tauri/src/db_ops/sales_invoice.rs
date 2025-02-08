@@ -1,14 +1,13 @@
-use diesel::prelude::*;
-use diesel::result::{ Error as DieselError, QueryResult };
-use crate::models::{
-    IdSequence, InvoiceSummary, NewIdSequence,
-    NewInvoiceDetail, NewInvoiceSummary, VendorDetail,
-    InvoiceDetail, InvoiceDetailsWithProduct, TaxDetail
-};
-use crate::db_ops::product_details as pd_db;
+use crate::constants::{SALES_INVOICE_PREFIX, SALES_INVOICE_SEQ_NAME};
 use crate::db_ops::id_sequence;
-use crate::constants::{ SALES_INVOICE_SEQ_NAME, SALES_INVOICE_PREFIX };
+use crate::db_ops::product_details as pd_db;
+use crate::models::{
+    IdSequence, InvoiceDetail, InvoiceDetailsWithProduct, InvoiceSummary, NewIdSequence,
+    NewInvoiceDetail, NewInvoiceSummary, TaxDetail, VendorDetail,
+};
 use chrono;
+use diesel::prelude::*;
+use diesel::result::{Error as DieselError, QueryResult};
 
 pub fn get_all_financial_year_list(conn: &mut MysqlConnection) -> Result<Vec<String>, DieselError> {
     use crate::schema::invoice_summary::dsl::*;
@@ -24,9 +23,9 @@ pub fn save_invoice(
     new_invoice_summary: NewInvoiceSummary,
     mut new_invoice_details: Vec<NewInvoiceDetail>,
     fy: String,
-    conn: &mut MysqlConnection
+    conn: &mut MysqlConnection,
 ) -> Result<(), DieselError> {
-    use crate::schema::{ invoice_summary, invoice_details };
+    use crate::schema::{invoice_details, invoice_summary};
 
     // save sales invoice data using transaction
     conn.transaction(|connection| {
@@ -63,8 +62,10 @@ pub fn save_invoice(
 
         // update id sequence
         update_id_sequence(
-            SALES_INVOICE_SEQ_NAME.to_string(), SALES_INVOICE_PREFIX.to_string(), 
-            fy, connection
+            SALES_INVOICE_SEQ_NAME.to_string(),
+            SALES_INVOICE_PREFIX.to_string(),
+            fy,
+            connection,
         )?;
         println!("Id sequence updated");
         QueryResult::Ok(())
@@ -76,9 +77,9 @@ pub fn save_invoice(
 pub fn update_invoice(
     mut inv_summary: InvoiceSummary,
     inv_details: Vec<InvoiceDetail>,
-    conn: &mut MysqlConnection
+    conn: &mut MysqlConnection,
 ) -> Result<(), DieselError> {
-    use crate::schema::{ invoice_summary, invoice_details };
+    use crate::schema::{invoice_details, invoice_summary};
 
     conn.transaction(|connection| {
         let invoice_id = inv_summary.invoice_id.clone();
@@ -92,7 +93,8 @@ pub fn update_invoice(
         println!("Updated invoice summary");
 
         // get all products that need to updated
-        let inv_prod_ids: Vec<i32> = inv_details.iter()
+        let inv_prod_ids: Vec<i32> = inv_details
+            .iter()
             .filter(|inv_detail| inv_detail.id != 0)
             .map(|inv_detail| inv_detail.id)
             .collect();
@@ -103,7 +105,8 @@ pub fn update_invoice(
             .select(invoice_details::id)
             .load(connection)?;
 
-        let difference: Vec<i32> = existing_prod_ids.into_iter()
+        let difference: Vec<i32> = existing_prod_ids
+            .into_iter()
             .filter(|id| !inv_prod_ids.contains(id))
             .collect();
 
@@ -120,7 +123,7 @@ pub fn update_invoice(
                 inv_detail.invoice_id = invoice_id;
                 let new_invoice_details = NewInvoiceDetail::from(&inv_detail);
                 println!("Invoice summary adding: {:?}", new_invoice_details);
-                
+
                 diesel::insert_into(invoice_details::table)
                     .values(new_invoice_details)
                     .execute(connection)
@@ -144,7 +147,10 @@ pub fn update_invoice(
     Ok(())
 }
 
-pub fn next_invoice_id(sec_prefix: String, conn: &mut MysqlConnection) -> Result<String, DieselError> {
+pub fn next_invoice_id(
+    sec_prefix: String,
+    conn: &mut MysqlConnection,
+) -> Result<String, DieselError> {
     // create id_seq object from parameters
     let mut id_seq = IdSequence::default();
     id_seq.seq_name = SALES_INVOICE_SEQ_NAME.to_string();
@@ -157,15 +163,20 @@ pub fn next_invoice_id(sec_prefix: String, conn: &mut MysqlConnection) -> Result
         let mut existing_seq = existing_seq_res?;
         existing_seq.seq_number += 1;
 
-        Ok(format!("{}{}{}", existing_seq.prefix, existing_seq.sec_prefix, existing_seq.seq_number))
+        Ok(format!(
+            "{}{}{}",
+            existing_seq.prefix, existing_seq.sec_prefix, existing_seq.seq_number
+        ))
     } else {
         Ok(format!("{}{}{}", SALES_INVOICE_PREFIX, sec_prefix, 1))
     }
 }
 
 fn update_id_sequence(
-    seq_name: String, prefix: String, sec_prefix: String,
-    conn: &mut MysqlConnection
+    seq_name: String,
+    prefix: String,
+    sec_prefix: String,
+    conn: &mut MysqlConnection,
 ) -> Result<usize, DieselError> {
     let mut id_seq = IdSequence::default();
     id_seq.seq_name = seq_name.clone();
@@ -179,7 +190,7 @@ fn update_id_sequence(
             record.modified_date = Some(chrono::Utc::now().naive_utc());
 
             id_sequence::update_seq_number(record, conn)
-        },
+        }
         Err(_) => {
             let mut new_id_seq = NewIdSequence::default();
             new_id_seq.seq_name = seq_name;
@@ -188,11 +199,14 @@ fn update_id_sequence(
             new_id_seq.seq_number = 1;
 
             id_sequence::save(new_id_seq, conn)
-        },
+        }
     }
 }
 
-pub fn search(query: String, conn: &mut MysqlConnection) -> Result<Vec<InvoiceSummary>, DieselError> {
+pub fn search(
+    query: String,
+    conn: &mut MysqlConnection,
+) -> Result<Vec<InvoiceSummary>, DieselError> {
     use crate::schema::invoice_summary::dsl::*;
 
     invoice_summary
@@ -204,11 +218,19 @@ pub fn search(query: String, conn: &mut MysqlConnection) -> Result<Vec<InvoiceSu
 
 pub fn get_invoice_with_details(
     invoice_summary: InvoiceSummary,
-    conn: &mut MysqlConnection
-) -> Result<(InvoiceSummary, VendorDetail, TaxDetail, Vec<InvoiceDetailsWithProduct>), DieselError> {
-    use crate::schema::vendor_details;
+    conn: &mut MysqlConnection,
+) -> Result<
+    (
+        InvoiceSummary,
+        VendorDetail,
+        TaxDetail,
+        Vec<InvoiceDetailsWithProduct>,
+    ),
+    DieselError,
+> {
     use crate::schema::invoice_details;
     use crate::schema::tax_details;
+    use crate::schema::vendor_details;
 
     let vd = vendor_details::dsl::vendor_details
         .filter(vendor_details::dsl::vendor_id.eq(invoice_summary.vendor_id))
@@ -226,12 +248,13 @@ pub fn get_invoice_with_details(
         .select(InvoiceDetail::as_select())
         .load(conn)?;
 
-    let de = details.into_iter()
+    let de = details
+        .into_iter()
         .map(|inv_detail| {
             let pd = pd_db::get_product(inv_detail.product_id, conn).unwrap();
             InvoiceDetailsWithProduct {
                 invoice_detail: inv_detail,
-                product_detail: pd
+                product_detail: pd,
             }
         })
         .collect::<Vec<InvoiceDetailsWithProduct>>();

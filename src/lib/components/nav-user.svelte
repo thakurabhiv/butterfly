@@ -3,22 +3,12 @@
 	import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
 	import * as Sidebar from "$lib/components/ui/sidebar/index.js";
 	import { useSidebar } from "$lib/components/ui/sidebar/index.js";
-	// import BadgeCheck from "lucide-svelte/icons/badge-check";
-	// import Bell from "lucide-svelte/icons/bell";
 	import ChevronsUpDown from "lucide-svelte/icons/chevrons-up-down";
-	// import CreditCard from "lucide-svelte/icons/credit-card";
 	import LogOut from "lucide-svelte/icons/log-out";
-	// import Sparkles from "lucide-svelte/icons/sparkles";
-	import { setMode } from "mode-watcher";
-	import { LOGIN_STATE } from "$lib/app/state.svelte";
+	import { LOGIN_STATE, APP_STATE } from "$lib/app/state.svelte";
 
 	let { user }: { user: { name: string; email: string; avatar: string } } = $props();
 	const sidebar = useSidebar();
-
-	let theme = $state("dark");
-	$effect(() => {
-		setMode(theme as any);
-	})
 
 	const logout = () => {
 		LOGIN_STATE.isLoggedIn = false;
@@ -92,7 +82,7 @@
 					<DropdownMenu.Sub>
 						<DropdownMenu.SubTrigger>Theme</DropdownMenu.SubTrigger>
 						<DropdownMenu.SubContent>
-							<DropdownMenu.RadioGroup bind:value={theme}>
+							<DropdownMenu.RadioGroup bind:value={APP_STATE.theme}>
 								<DropdownMenu.RadioItem value="dark">Dark</DropdownMenu.RadioItem >
 								<DropdownMenu.RadioItem value="light">Light</DropdownMenu.RadioItem >
 								<DropdownMenu.RadioItem value="system">System</DropdownMenu.RadioItem >

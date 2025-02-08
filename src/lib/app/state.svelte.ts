@@ -2,6 +2,18 @@ const LOGIN_STATE = $state({
     isLoggedIn: false
 });
 
+type AppStateType = {
+    theme?: "light" | "dark" | "system",
+    dateFormat?: string,
+    goServicePort?: number,
+};
+const APP_STATE: AppStateType = $state({
+    theme: "dark",
+    dateFormat: "DD-MM-YYYY hh:mm A",
+    goServicePort: 8080,
+});
+
 export {
-    LOGIN_STATE
+    LOGIN_STATE,
+    APP_STATE
 }
