@@ -115,7 +115,8 @@
 			base64: true,
 			onLoadingEnd: onPrinterLoadingEnd,
 			showModal: true,
-			modalMessage: `Loading document ${name}`
+			modalMessage: `Loading document ${name}`,
+			documentTitle: name
 		});
     }
 

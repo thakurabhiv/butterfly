@@ -35,8 +35,12 @@ pub fn get_state(state_id: i32) -> Result<StateList, String> {
 }
 
 #[tauri::command]
-pub fn log(text: String) {
-    print!("{}", text);
+pub fn log(msg: String, log_type: String) {
+    match log_type.as_ref() {
+        "info" => log::info!("{}", msg),
+        "error" => log::error!("{}", msg),
+        _ => {}
+    };
 }
 
 #[tauri::command]

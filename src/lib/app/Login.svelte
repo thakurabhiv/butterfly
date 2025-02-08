@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
     import { onMount, tick } from 'svelte';
     import { Label } from '$lib/components/ui/label';
     import { Input } from '$lib/components/ui/input';
@@ -6,13 +6,15 @@
     import { Loader2, LogIn } from 'lucide-svelte';
     import { LOGIN_STATE } from "$lib/app/state.svelte";
 
-    let username = $state("admin");
-    let password = $state("password");
+    import { TOAST_UPDATES, type ToastMessage, ToastMessageType } from '$lib/utils/stores';
+
+    let username = $state("");
+    let password = $state("");
 
     /**
 	 * @type {Input}
 	 */
-    let usernameInput;
+    let usernameInput: Input;
     onMount(() => tick().then(usernameInput.focus));
 
     function reset() {
@@ -26,16 +28,25 @@
     /**
 	 * @param {{ preventDefault: () => void; }} evt
 	 */
-    function onSubmit(evt) {
+    function onSubmit(evt: any) {
         evt.preventDefault();
-        
-        isLoading = true
 
+        isLoading = true
         setTimeout(() => {
             isLoading = false
-
-            LOGIN_STATE.isLoggedIn = true
-        }, 500)
+            if (username?.toLowerCase() == "admin" && password?.toLowerCase() == "password") {
+                LOGIN_STATE.isLoggedIn = true
+            } else {
+                let toastMessage: ToastMessage = {
+					title: "Invalid Login",
+					description: "Please enter correct username and password",
+					type: ToastMessageType.WARNING
+				}
+				TOAST_UPDATES.set(toastMessage);
+                reset();
+                tick().then(usernameInput.focus);
+            }
+        }, 100)
     }
 </script>
 

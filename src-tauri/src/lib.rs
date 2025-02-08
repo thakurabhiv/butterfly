@@ -1,3 +1,5 @@
+use tauri::Manager;
+
 mod commands;
 mod connection;
 mod constants;
@@ -9,6 +11,20 @@ mod utils;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_log::Builder::new()
+            .target(tauri_plugin_log::Target::new(
+                tauri_plugin_log::TargetKind::LogDir { file_name: Some("logs".to_string()) }
+            ))
+            .max_file_size(50_000)
+            .rotation_strategy(tauri_plugin_log::RotationStrategy::KeepAll)
+            .build())
+        .plugin(tauri_plugin_process::init())
+        .plugin(tauri_plugin_single_instance::init(|app, _, _| {
+            let _ = app
+                .get_webview_window("main")
+                .expect("no main window")
+                .set_focus();
+        }))
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
             commands::tax_details::find_all_tax_details,
@@ -42,16 +58,6 @@ pub fn run() {
             commands::common::get_current_fy,
             commands::common::get_all_financial_year,
         ])
-        .setup(|app| {
-            if cfg!(debug_assertions) {
-                app.handle().plugin(
-                    tauri_plugin_log::Builder::default()
-                        .level(log::LevelFilter::Info)
-                        .build(),
-                )?;
-            }
-            Ok(())
-        })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

@@ -9,10 +9,7 @@ import type {
     ProductDetailsType, TaxDetailsType
 } from '$lib/utils/schemas';
 import type { InvoiceDetailsSchema } from '$lib/utils/schemas';
-
-// TODO: Get below values from app config file
-const DATE_FORMAT_STR = "DD-MM-YYYY hh:mm A";
-const GOSERVICE_URL = "http://localhost:8080";
+import { APP_STATE } from "$lib/app/state.svelte";
 
 const AMOUNT_FORMATTER = new Intl.NumberFormat("en-in", {
     style: "currency",
@@ -24,6 +21,8 @@ export enum Mode {
     UPDATE,
     DELETE
 }
+
+type LogType = "info" | "error";
 
 export function makeReadable(str: string) {
     if (str && str.indexOf("_") > -1) {
@@ -121,7 +120,7 @@ export function debounceWrapper(callback: Function, wait: number) {
 };
 
 export function formatDate(date: Date): string {
-    return moment(date).format(DATE_FORMAT_STR);
+    return moment(date).format(APP_STATE.dateFormat);
 }
 
 export function formatAmount(amount: number): string {
@@ -133,7 +132,6 @@ export async function searchStates(query: string) {
 }
 
 export const blobToBase64 = (blob: Blob, trim?: boolean): Promise<string> => {
-    
     return new Promise((resolve, _) => {
         const reader = new FileReader();
         
@@ -158,12 +156,13 @@ export const time = (millis: number): Promise<void> => {
     })
 }
 
-export const log = (text: string): Promise<any> => {
-    return invoke("log", { text })
+export const log = (msg: string, logType: LogType = "info"): Promise<any> => {
+    return invoke("log", { msg, logType })
 }
 
 export const loadFontForGoService = () => {
-    const url = `${GOSERVICE_URL}/loadFont/Roboto/ttf`;
+    const goServiceURL = getGoServiceURL();
+    const url = `${goServiceURL}/loadFont/Roboto/ttf`;
 
     fetch(url, { method: "GET" })
         .then(async (response) => {
@@ -174,7 +173,8 @@ export const loadFontForGoService = () => {
 }
 
 export const getInvoicePDF = (payload: { [key: string]: any }): Promise<Blob> => {
-    const pdfUrl = `${GOSERVICE_URL}/invoicePdf`;
+    const goServiceURL = getGoServiceURL();
+    const pdfUrl = `${goServiceURL}/invoicePdf`;
 
     return new Promise((resolve, reject) => {
         sendRequest(pdfUrl, "POST", JSON.stringify(payload))
@@ -187,6 +187,10 @@ export const getInvoicePDF = (payload: { [key: string]: any }): Promise<Blob> =>
             })
             .catch(reject);
     });
+}
+
+const getGoServiceURL = () => {
+    return `http://127.0.0.1:${APP_STATE.goServicePort}`;
 }
 
 const sendRequest = async (url: string, method?: string, body?: BodyInit | null): Promise<Response> => {

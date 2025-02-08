@@ -608,7 +608,7 @@
                 </div>
             </div>
         </div>
-        <div id="actionButtons" class="px-4 pt-4 pb-3 h-full flex gap-3 items-start">
+        <div id="actionButtons" class="px-4 pt-4 pb-3 flex gap-3 items-start">
             <Button variant="secondary" onclick={save}>{mode == Mode.ADD ? "Save" : "Update"}</Button>
         </div>
     </ScrollArea>

@@ -4,14 +4,27 @@
 	import * as Sidebar from "$lib/components/ui/sidebar/index.js";
 	import { useSidebar } from "$lib/components/ui/sidebar/index.js";
 	import ChevronsUpDown from "lucide-svelte/icons/chevrons-up-down";
+	import Theme from "lucide-svelte/icons/palette";
 	import LogOut from "lucide-svelte/icons/log-out";
+	import Exit from "lucide-svelte/icons/square-x";
+	import Restart from "lucide-svelte/icons/refresh-ccw";
 	import { LOGIN_STATE, APP_STATE } from "$lib/app/state.svelte";
+
+	import { exit, relaunch } from "@tauri-apps/plugin-process";
 
 	let { user }: { user: { name: string; email: string; avatar: string } } = $props();
 	const sidebar = useSidebar();
 
 	const logout = () => {
 		LOGIN_STATE.isLoggedIn = false;
+	};
+
+	const exitApp = async () => {
+		await exit(0);
+	};
+
+	const restartApp = async () => {
+		await relaunch();
 	};
 </script>
 
@@ -80,16 +93,28 @@
 				<DropdownMenu.Separator /> -->
 				<DropdownMenu.Group>
 					<DropdownMenu.Sub>
-						<DropdownMenu.SubTrigger>Theme</DropdownMenu.SubTrigger>
+						<DropdownMenu.SubTrigger>
+							<Theme />
+							Theme
+						</DropdownMenu.SubTrigger>
 						<DropdownMenu.SubContent>
 							<DropdownMenu.RadioGroup bind:value={APP_STATE.theme}>
 								<DropdownMenu.RadioItem value="dark">Dark</DropdownMenu.RadioItem >
 								<DropdownMenu.RadioItem value="light">Light</DropdownMenu.RadioItem >
 								<DropdownMenu.RadioItem value="system">System</DropdownMenu.RadioItem >
-							</DropdownMenu.RadioGroup	>
+							</DropdownMenu.RadioGroup>
 						</DropdownMenu.SubContent>
 					</DropdownMenu.Sub>
 				</DropdownMenu.Group>
+				<DropdownMenu.Separator />
+				<DropdownMenu.Item onSelect={exitApp}>
+					<Exit/>
+					Exit
+				</DropdownMenu.Item>
+				<DropdownMenu.Item onSelect={restartApp}>
+					<Restart/>
+					Restart
+				</DropdownMenu.Item>
 				<DropdownMenu.Separator />
 				<DropdownMenu.Item onSelect={logout}>
 					<LogOut />
