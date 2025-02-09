@@ -26,6 +26,7 @@ tauri = { version = "2.2.1", features = [] }
 tauri-plugin-opener = "2"
 tauri-plugin-shell = "2.0.0"
 diesel = { version = "2.1.0", features = ["mysql", "chrono", "bigdecimal"] }
+diesel_migrations = "2.1.0"
 dotenvy = "0.15"
 chrono = { version = "0.4", features = ["serde"] }
 bigdecimal = { version = "0.4.2", features = ["serde"] }

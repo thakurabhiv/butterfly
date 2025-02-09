@@ -8,6 +8,18 @@ mod models;
 mod schema;
 mod utils;
 
+use diesel::mysql::Mysql;
+use diesel_migrations::{ embed_migrations, EmbeddedMigrations, MigrationHarness };
+use std::error::Error;
+
+pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations/mysql");
+
+fn run_migrations(connection: &mut impl MigrationHarness<Mysql>) -> Result<(), Box<dyn Error + Send + Sync + 'static>> {
+    connection.run_pending_migrations(MIGRATIONS)?;
+
+    Ok(())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -58,6 +70,12 @@ pub fn run() {
             commands::common::get_current_fy,
             commands::common::get_all_financial_year,
         ])
+        .setup(|_| {
+            let mut connection = crate::connection::establish_connection()?;
+            let _ = run_migrations(&mut connection);
+
+            Ok(())
+        })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

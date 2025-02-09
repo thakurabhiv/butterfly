@@ -1,0 +1,20 @@
+CREATE TABLE invoice_details (
+    id INTEGER AUTO_INCREMENT,
+    invoice_id INTEGER NOT NULL,
+    product_id INTEGER NOT NULL,
+    quantity INTEGER NOT NULL,
+    unit VARCHAR(100),
+    price_per_unit DECIMAL(15, 2) NOT NULL,
+    no_of_bags INTEGER,
+    amount DECIMAL(15, 2) NOT NULL,
+    tax1 DECIMAL(15, 2),
+    tax2 DECIMAL(15, 2),
+    tax3 DECIMAL(15, 2),
+    total_amount DECIMAL(15, 2),
+    created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    modified_date TIMESTAMP,
+    is_deleted BOOL DEFAULT FALSE,
+    CONSTRAINT pk_id PRIMARY KEY (id),
+    CONSTRAINT fk_invoice_details_product_details FOREIGN KEY (product_id) REFERENCES product_details(id),
+    CONSTRAINT fk_invoice_details_invoice_summary FOREIGN KEY (invoice_id) REFERENCES invoice_summary(invoice_id)
+)

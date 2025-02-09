@@ -43,8 +43,11 @@
 					type: ToastMessageType.WARNING
 				}
 				TOAST_UPDATES.set(toastMessage);
-                reset();
-                tick().then(usernameInput.focus);
+
+                tick().then(() => {
+                    reset();
+                    usernameInput.focus();
+                });
             }
         }, 100)
     }

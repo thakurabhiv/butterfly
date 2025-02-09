@@ -1,0 +1,41 @@
+CREATE TABLE state_list (
+    id INTEGER AUTO_INCREMENT,
+    state_name VARCHAR(100) NOT NULL,
+	tin VARCHAR(2) NOT NULL,
+    iso VARCHAR(50) NOT NULL,
+    capital VARCHAR(100) NOT NULL,
+    vehicle_code VARCHAR(2) NOT NULL,
+	CONSTRAINT pk_id PRIMARY KEY (id)
+);
+
+INSERT INTO state_list(state_name, tin, iso, capital, vehicle_code)
+VALUES
+    ('Andhra Pradesh','37','IN-AP','Amaravati','AP'),
+	('Arunachal Pradesh','12','IN-AR','Itanagar','AR'),
+	('Assam','18','IN-AS','Dispur','AS'),
+	('Bihar','10','IN-BR','Patna','BR'),
+	('Chhattisgarh','22','IN-CT','Raipur','CG'),
+	('Goa','30','IN-GA','Panaji','GA'),
+	('Gujarat','24','IN-GJ','Gandhinagar','GJ')	,
+	('Haryana','06','IN-HR','Chandigarh','HR'),
+	('Himachal Pradesh','02','IN-HP','Shimla','HP'),
+	('Jharkhand','20','IN-JH','Ranchi','JH'),
+	('Karnataka','29','IN-KA','Bangalore','KA'),
+	('Kerala','32','IN-KL','Thiruvananthapuram','KL'),
+	('Madhya Pradesh','23','IN-MP','Bhopal','MP'),
+	('Maharashtra','27','IN-MH','Mumbai','MH'),
+	('Manipur','14','IN-MN','Imphal','MN'),
+	('Meghalaya','17','IN-ML','Shillong','ML'),
+	('Mizoram','15','IN-MZ','Aizawl','MZ'),
+	('Nagaland','13','IN-NL','Kohima','NL'),
+	('Odisha','21','IN-OR','Bhubaneswar','OD'),
+	('Punjab','03','IN-PB','Chandigarh','PB'),
+	('Rajasthan','08','IN-RJ','Jaipur','RJ'),
+	('Sikkim','11','IN-SK','Gangtok','SK'),
+	('Tamil Nadu','33','IN-TN','Chennai','TN'),
+	('Telangana','36','IN-TG','Hyderabad','TS'),
+	('Tripura','16','IN-TR','Agartala','TR'),
+	('Uttar Pradesh','09','IN-UP','Lucknow','UP'),
+	('Uttarakhand','05','IN-UT','Dehradun','UK'),
+	('West Bengal','19','IN-WB','Kolkata','WB'),
+	('Delhi','07','IN-DL','New Delhi','DL');

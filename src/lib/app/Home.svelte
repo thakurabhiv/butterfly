@@ -6,7 +6,6 @@
 	  import type { Component } from "svelte";
   
     let breadcrumbElements: string[] = $state([]);
-
     let FormComponent: any | Component = $state();
   </script>
   
