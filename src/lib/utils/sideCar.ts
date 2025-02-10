@@ -30,13 +30,13 @@ const terminateAllSideCars = () => {
     SPAWNED_PROCESSES_MAP = {};
 }
 
-const startSidecar = async (sideCarName: string): Promise<SideCarStatus> => {
+const startSidecar = async (sideCarName: string, args: string[] = []): Promise<SideCarStatus> => {
     const sideCar = SPAWNED_PROCESSES_MAP[sideCarName];
     if (sideCar) {
         return Promise.resolve({ code: SideCarStatusCode.ALREADY_STARTED, pid: sideCar.pid });
     }
 
-    const command = Command.sidecar(sideCarName);
+    const command = Command.sidecar(sideCarName, args);
     addProcessListeners(command, sideCarName)
 
     try {
@@ -51,17 +51,17 @@ const startSidecar = async (sideCarName: string): Promise<SideCarStatus> => {
 
 const addProcessListeners = (command: Command<string>, sideCarName: string) => {
     command.on("close", () => {
-        log(`[${sideCarName}] Service terminated\n`);
+        log(`[${sideCarName}] Service terminated`, "info");
     })
     command.on("error", (error) => {
-        log(`Error while starting ${sideCarName}: ${error}\n`)
+        log(`Error while starting ${sideCarName}: ${error}`, "error")
     })
 
     command.stdout.on("data", (line) => {
         log(`[${sideCarName}] ${line}`)
     })
     command.stderr.on("data", (line) => {
-        log(`[${sideCarName}] ${line}`)
+        log(`[${sideCarName}] ${line}`, "error")
     })
 }
 

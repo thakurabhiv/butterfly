@@ -305,8 +305,8 @@ func (b *BranchOwner) GetPaymentAndSignature(totalAmount float64, invoiceNumber 
 	colLength, bankDetailsCellStyle, bankDetailsLeft := 4, common.CellRightBorderStyle, 0
 	if !upiIdPresent {
 		colLength, bankDetailsCellStyle, bankDetailsLeft = 7, common.CellFullBorderStyle, 2
-
 	}
+
 	resRow.Add(
 		col.New(colLength).
 			WithStyle(&bankDetailsCellStyle).

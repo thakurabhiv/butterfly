@@ -1,20 +1,27 @@
 package main
 
 import (
+	"flag"
+	"fmt"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
+var port int64
+
 func main() {
+	flag.Int64Var(&port, "port", 8080, "Port to start server on")
+	flag.Parse()
+
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 
 	setCORS(r)
 	setHandles(r)
 
-	// TODO either get ip and port from config or supply
-	// white starting this service
-	r.Run("localhost:8080")
+	fmt.Printf("Starting server on port %v\n", port)
+	r.Run(fmt.Sprintf(":%v", port))
 }
 
 func setHandles(e *gin.Engine) {

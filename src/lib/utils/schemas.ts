@@ -95,9 +95,12 @@ const BranchOwnerDetailsSchema = z.object({
         .min(3, "Too short (Min 3 characters)")
         .max(100, "Too Long (Max 100 characters)"),
     state_id: z.coerce.string({ required_error: "Select state" }).pipe(z.coerce.number()),
-    pin_code: z.string().trim()
-        .length(6, "Shoule be 6 characters"),
-    phone_number: z.string()
+    pin_code: z.coerce.string()
+        .nonempty("Enter pin code")
+        .min(6, "Enter valid pin code")
+        .max(6, "Enter valid pin code"),
+    // z.coerce.string()number().gt(99999).lt(1000000),
+    phone_number: z.coerce.string()
         .regex(regexp.PHONE_NUMBER_REGEXP, "Invalid phone number"),
     email_id: z.string().email("Enter valid email"),
     gstin: z.string()
@@ -114,7 +117,7 @@ const BranchOwnerDetailsSchema = z.object({
     branch_name: z.string()
         .min(4, "Too short (Min 4 characters)")
         .max(100, "Too Long (Max 100 characters)"),
-    account_number: z.string()
+    account_number: z.coerce.string()
         .regex(regexp.BANK_ACC_NUMBER_REGEXP, "Enter valid account number"),
     ifsc_code: z.string()
         .regex(regexp.IFSC_REGEXP, "Enter valid IFSC code"),
@@ -148,10 +151,11 @@ const VendorDetailsSchema = z.object({
         .min(3, "Too short (Min 3 characters)")
         .max(100, "Too Long (Max 100 characters)"),
     state_id: z.coerce.string({ required_error: "Select state" }).pipe(z.coerce.number()),
-    pin_code: z.string({ required_error: "Pin code required" })
-        .trim()
-        .length(6, "Shoule be 6 characters"),
-    phone_number: z.string({ required_error: "Phone number required" })
+    pin_code: z.coerce.string()
+        .nonempty("Enter pin code")
+        .min(6, "Enter valid pin code")
+        .max(6, "Enter valid pin code"),
+    phone_number: z.coerce.string()
         .regex(regexp.PHONE_NUMBER_REGEXP, "Invalid phone number"),
     email_id: z.string({ required_error: "Email required" })
         .email("Enter valid email"),
@@ -162,17 +166,22 @@ const VendorDetailsSchema = z.object({
         .optional(),
     account_holder_name: z.string({ required_error: "Account holder name required" })
         .min(2, "Too short (Min 2 characters)")
-        .max(100, "Too Long (Max 100 characters)"),
+        .max(100, "Too Long (Max 100 characters)")
+        .optional(),
     bank_name: z.string({ required_error: "Bank name required" })
         .min(4, "Too short (Min 4 characters)")
-        .max(100, "Too Long (Max 100 characters)"),
+        .max(100, "Too Long (Max 100 characters)")
+        .optional(),
     branch_name: z.string({ required_error: "Branch name required" })
         .min(4, "Too short (Min 4 characters)")
-        .max(100, "Too Long (Max 100 characters)"),
-    account_number: z.string({ required_error: "Account number required" })
-        .regex(regexp.BANK_ACC_NUMBER_REGEXP, "Enter valid account number"),
+        .max(100, "Too Long (Max 100 characters)")
+        .optional(),
+    account_number: z.coerce.string()
+        .regex(regexp.BANK_ACC_NUMBER_REGEXP, "Enter valid account number")
+        .optional(),
     ifsc_code: z.string({ required_error: "IFSC code required" })
-        .regex(regexp.IFSC_REGEXP, "Enter valid IFSC code"),
+        .regex(regexp.IFSC_REGEXP, "Enter valid IFSC code")
+        .optional(),
     is_deleted: z.coerce.string().transform(val => !!val && val.toLowerCase() == "true")
 });
 

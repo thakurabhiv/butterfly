@@ -48,6 +48,7 @@
     } from '$lib/utils/schemas';
     import { SideCarStatusCode, startSidecar, type SideCarStatus } from '$lib/utils/sideCar';
     import { TOAST_UPDATES, type ToastMessage, ToastMessageType } from '$lib/utils/stores';
+	import { APP_STATE } from '../state.svelte';
 
     let financialYears: { label: string, value: string }[] = $state([]);
     let financialYearPlaceHolder = "Financial Year";
@@ -349,14 +350,15 @@
         setupInvoiceDate();
         loadBranchOwnerDetails();
 
+        const args = ["--port", `${APP_STATE.goServicePort}`];
         // start sidecar
-        startSidecar("binaries/goservices")
+        startSidecar("binaries/goservices", args)
             .then((status: SideCarStatus) => {
                 if (status.code == SideCarStatusCode.OK) {
-                    log(`Sidecar [binaries/goservices] started with process id ${status.pid}\n`);
+                    log(`Sidecar started with process id ${status.pid}\n`);
                     loadFontForGoService();
                 } else if (status.code == SideCarStatusCode.ALREADY_STARTED) {
-                    log(`Sidecar [binaries/goservices] already started with process id ${status.pid}\n`);
+                    log(`Sidecar already started with process id ${status.pid}\n`);
                 }
             })
             .catch((err) => {
@@ -502,6 +504,7 @@
     let invoicePDFBlob: Blob = $state(null as unknown as Blob);
     const openInvoice = async () => {
         const invoicePayload = await buildInvoicePayload();
+        console.log("invoicePayload", invoicePayload);
 
         getInvoicePDF(invoicePayload)
             .then((value) => {

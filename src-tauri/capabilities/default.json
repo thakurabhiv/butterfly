@@ -11,6 +11,12 @@
       "identifier": "shell:allow-spawn",
       "allow": [
         {
+          "args": [
+            "--port",
+            {
+              "validator": "\\d+"
+            }
+          ],
           "name": "binaries/goservices",
           "sidecar": true
         }

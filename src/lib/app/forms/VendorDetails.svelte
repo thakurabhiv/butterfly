@@ -29,11 +29,6 @@
     let validationMessages = $state({} as VendorDetailsType);
     let mode: Mode = $state(Mode.ADD);
     let gridData = $state([] as VendorDetailsType[]);
-    /* $effect(() => {
-        if (formData && !formData.vendor_name) {
-            reset();
-        }
-    }); */
 
     let vendorNameInput: KAutoComplete;
     
@@ -76,7 +71,6 @@
                 result[item.path[0]] = item.message;
                 return result;
             }, {});
-            console.log(validationMessages);
 
 			return;
         }
@@ -263,7 +257,6 @@
                 <div class="grid grid-flow-col gap-2 w-max mt-2">
                     <KField
                         label="Account Holder name"
-                        mandatory={true}
                         class="w-44"
                         validationMsg={validationMessages.account_holder_name}
                     >
@@ -275,7 +268,6 @@
                     </KField>
                     <KField
                         label="Bank Name"
-                        mandatory={true}
                         class="w-44 ml-2"
                         validationMsg={validationMessages.bank_name}
                     >
@@ -287,7 +279,6 @@
                     </KField>
                     <KField
                         label="Branch Name"
-                        mandatory={true}
                         class="w-44 ml-2"
                         validationMsg={validationMessages.branch_name}
                     >
@@ -299,7 +290,6 @@
                     </KField>
                     <KField
                         label="Account Number"
-                        mandatory={true}
                         class="w-44 ml-2"
                         validationMsg={validationMessages.account_number}
                     >
@@ -312,7 +302,6 @@
                     </KField>
                     <KField
                         label="IFSC Code"
-                        mandatory={true}
                         class="w-44 ml-2"
                         validationMsg={validationMessages.ifsc_code}
                     >

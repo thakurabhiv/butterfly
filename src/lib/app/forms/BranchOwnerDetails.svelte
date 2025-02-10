@@ -42,7 +42,7 @@
     }
 
     const onStateSelection = (event: any) => {
-        let stateDetails = event.detail as StateListType;
+        let stateDetails = event.data as StateListType;
         formData.state_id = stateDetails.id as string;
     } 
 
@@ -452,15 +452,16 @@
                         label="&nbsp;"
                     >
                         <AlertDialog.Root onOpenChange={generateQRCode} bind:open={qrCodeAlertOpen}>
-                            <AlertDialog.Trigger>
-                                <Button
-                                    variant="ghost"
-                                    class="h-8 w-8 px-1"
-                                    disabled={!formData.upi_id}
-                                >
-                                    <QrCode size={20} />
-                                </Button>
-                            </AlertDialog.Trigger>
+                            {#if formData.upi_id}
+                                <AlertDialog.Trigger>
+                                    <Button
+                                        variant="ghost"
+                                        class="h-8 w-8 px-1"
+                                    >
+                                        <QrCode size={20} />
+                                    </Button>
+                                </AlertDialog.Trigger>
+                            {/if}
                             <AlertDialog.Content>
                                 <AlertDialog.Header>
                                     <AlertDialog.Title>QR Code ({formData.upi_id})</AlertDialog.Title>
@@ -512,15 +513,16 @@
                         label="&nbsp;"
                     >
                         <AlertDialog.Root onOpenChange={loadSignObjectUrl}>
-                            <AlertDialog.Trigger>
-                                <Button
-                                    variant="ghost"
-                                    class="h-8 w-8 px-1"
-                                    disabled={!formData.signatory}
-                                >
-                                    <Image size={20} />
-                                </Button>
-                            </AlertDialog.Trigger>
+                            {#if formData.signatory}
+                                <AlertDialog.Trigger>
+                                    <Button
+                                        variant="ghost"
+                                        class="h-8 w-8 px-1"
+                                    >
+                                        <Image size={20} />
+                                    </Button>
+                                </AlertDialog.Trigger>
+                            {/if}
                             <AlertDialog.Content>
                                 <AlertDialog.Header>
                                     <AlertDialog.Title>Signature</AlertDialog.Title>
@@ -573,15 +575,16 @@
                         label="&nbsp;"
                     >
                         <AlertDialog.Root onOpenChange={loadIconObjectUrl}>
-                            <AlertDialog.Trigger>
-                                <Button
-                                    variant="ghost"
-                                    class="h-8 w-8 px-1"
-                                    disabled={!formData.icon}
-                                >
-                                    <Image size={20} />
-                                </Button>
-                            </AlertDialog.Trigger>
+                            {#if formData.icon}
+                                <AlertDialog.Trigger>
+                                    <Button
+                                        variant="ghost"
+                                        class="h-8 w-8 px-1"    
+                                    >
+                                        <Image size={20} />
+                                    </Button>
+                                </AlertDialog.Trigger>
+                            {/if}
                             <AlertDialog.Content>
                                 <AlertDialog.Header>
                                     <AlertDialog.Title>Icon</AlertDialog.Title>

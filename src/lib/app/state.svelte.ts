@@ -12,7 +12,7 @@ const APP_STATE: AppStateType = $state({
     theme: "dark",
     dateFormat: "DD-MM-YYYY hh:mm A",
     toastRichColors: true,
-    goServicePort: 8080,
+    goServicePort: 8089,
 });
 
 export {
