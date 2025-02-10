@@ -10,7 +10,7 @@ type AppStateType = {
 };
 const APP_STATE: AppStateType = $state({
     theme: "dark",
-    dateFormat: "DD-MM-YYYY hh:mm A",
+    dateFormat: "DD-MM-YYYY",
     toastRichColors: true,
     goServicePort: 8089,
 });

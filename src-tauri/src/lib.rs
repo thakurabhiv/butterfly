@@ -8,13 +8,16 @@ mod models;
 mod schema;
 mod utils;
 
-use diesel::mysql::Mysql;
-use diesel_migrations::{ embed_migrations, EmbeddedMigrations, MigrationHarness };
 use std::error::Error;
+
+use diesel::mysql::Mysql;
+use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations/mysql");
 
-fn run_migrations(connection: &mut impl MigrationHarness<Mysql>) -> Result<(), Box<dyn Error + Send + Sync + 'static>> {
+fn run_migrations(
+    connection: &mut impl MigrationHarness<Mysql>,
+) -> Result<(), Box<dyn Error + Send + Sync + 'static>> {
     connection.run_pending_migrations(MIGRATIONS)?;
 
     Ok(())
@@ -23,13 +26,17 @@ fn run_migrations(connection: &mut impl MigrationHarness<Mysql>) -> Result<(), B
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
-        .plugin(tauri_plugin_log::Builder::new()
-            .target(tauri_plugin_log::Target::new(
-                tauri_plugin_log::TargetKind::LogDir { file_name: Some("logs".to_string()) }
-            ))
-            .max_file_size(50_000)
-            .rotation_strategy(tauri_plugin_log::RotationStrategy::KeepAll)
-            .build())
+        .plugin(
+            tauri_plugin_log::Builder::new()
+                .target(tauri_plugin_log::Target::new(
+                    tauri_plugin_log::TargetKind::LogDir {
+                        file_name: Some("logs".to_string()),
+                    },
+                ))
+                .max_file_size(50_000)
+                .rotation_strategy(tauri_plugin_log::RotationStrategy::KeepAll)
+                .build(),
+        )
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_single_instance::init(|app, _, _| {
             let _ = app
@@ -72,7 +79,10 @@ pub fn run() {
         ])
         .setup(|_| {
             let mut connection = crate::connection::establish_connection()?;
-            let _ = run_migrations(&mut connection);
+            if let Err(e) = run_migrations(&mut connection) {
+                log::error!("Error while running migration {}", e);                
+            }
+            log::info!("Migration run successfully");
 
             Ok(())
         })
