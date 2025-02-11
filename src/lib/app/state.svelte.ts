@@ -3,13 +3,13 @@ const LOGIN_STATE = $state({
 });
 
 type AppStateType = {
-    theme?: "light" | "dark" | "system",
+    mode?: "light" | "dark" | "system",
     dateFormat?: string,
     toastRichColors?: boolean,
     goServicePort?: number,
 };
 const APP_STATE: AppStateType = $state({
-    theme: "dark",
+    mode: "light",
     dateFormat: "DD-MM-YYYY",
     toastRichColors: true,
     goServicePort: 8089,

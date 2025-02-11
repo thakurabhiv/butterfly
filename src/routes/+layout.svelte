@@ -7,6 +7,6 @@
 	let { children } = $props();
 </script>
 
-<Toaster invert={true} richColors={APP_STATE.toastRichColors}/>
-<ModeWatcher/>
+<Toaster richColors={APP_STATE.toastRichColors}/>
+<ModeWatcher defaultMode={APP_STATE.mode}/>
 {@render children()}

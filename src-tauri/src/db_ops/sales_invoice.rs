@@ -29,19 +29,19 @@ pub fn save_invoice(
 
     // save sales invoice data using transaction
     conn.transaction(|connection| {
-        println!("Saving invoice summary!");
+        log::debug!("Saving invoice summary!");
         // insert invoice summary
         diesel::insert_into(invoice_summary::dsl::invoice_summary)
             .values(new_invoice_summary)
             .execute(connection)?;
-        println!("Invoice summary saved!");
+        log::debug!("Invoice summary saved!");
 
-        println!("Retriving");
+        log::debug!("Retriving");
         let latest_result: Vec<InvoiceSummary> = invoice_summary::dsl::invoice_summary
             .order(invoice_summary::dsl::invoice_id.desc())
             .select(InvoiceSummary::as_select())
             .load(connection)?;
-        println!("Retrived");
+        log::debug!("Retrived");
 
         if latest_result.len() == 0 {
             return Err(DieselError::NotFound);
@@ -49,16 +49,16 @@ pub fn save_invoice(
         let latest_row = &latest_result[0];
 
         new_invoice_details.iter_mut().for_each(|value| {
-            println!("Setting new invoice id {}", latest_row.invoice_id);
+            log::debug!("Setting new invoice id {}", latest_row.invoice_id);
             value.invoice_id = latest_row.invoice_id;
         });
 
-        println!("Inserting into invoice_details");
+        log::debug!("Inserting into invoice_details");
         // insert invoice details
         diesel::insert_into(invoice_details::dsl::invoice_details)
             .values(new_invoice_details)
             .execute(connection)?;
-        println!("Inserted into invoice_details");
+        log::debug!("Inserted into invoice_details");
 
         // update id sequence
         update_id_sequence(
@@ -67,7 +67,7 @@ pub fn save_invoice(
             fy,
             connection,
         )?;
-        println!("Id sequence updated");
+        log::debug!("Id sequence updated");
         QueryResult::Ok(())
     })?;
 
@@ -85,12 +85,12 @@ pub fn update_invoice(
         let invoice_id = inv_summary.invoice_id.clone();
         inv_summary.modified_date = Some(chrono::Utc::now().naive_utc());
 
-        println!("Updating invoice summary for invoice id {} !", invoice_id);
+        log::debug!("Updating invoice summary for invoice id {} !", invoice_id);
         diesel::update(invoice_summary::table)
             .filter(invoice_summary::dsl::invoice_id.eq(inv_summary.invoice_id))
             .set(inv_summary)
             .execute(connection)?;
-        println!("Updated invoice summary");
+        log::debug!("Updated invoice summary");
 
         // get all products that need to updated
         let inv_prod_ids: Vec<i32> = inv_details
@@ -110,26 +110,26 @@ pub fn update_invoice(
             .filter(|id| !inv_prod_ids.contains(id))
             .collect();
 
-        println!("Product to be deleted: {:?}", difference);
+        log::debug!("Product to be deleted: {:?}", difference);
         diesel::update(invoice_details::table)
             .filter(invoice_details::dsl::id.eq_any(difference))
             .set(invoice_details::dsl::is_deleted.eq(true))
             .execute(connection)?;
-        println!("Products mark as deleted");
+        log::debug!("Products mark as deleted");
 
-        println!("Updating invoice details !");
+        log::debug!("Updating invoice details !");
         for mut inv_detail in inv_details {
             if inv_detail.id == 0 {
                 inv_detail.invoice_id = invoice_id;
                 let new_invoice_details = NewInvoiceDetail::from(&inv_detail);
-                println!("Invoice summary adding: {:?}", new_invoice_details);
+                log::debug!("Invoice summary adding: {:?}", new_invoice_details);
 
                 diesel::insert_into(invoice_details::table)
                     .values(new_invoice_details)
                     .execute(connection)
             } else {
                 inv_detail.modified_date = Some(chrono::Utc::now().naive_utc());
-                println!("Invoice summary updating: {:?}", inv_detail);
+                log::debug!("Invoice summary updating: {:?}", inv_detail);
 
                 diesel::update(invoice_details::table)
                     .filter(invoice_details::dsl::id.eq(inv_detail.id))
@@ -137,9 +137,9 @@ pub fn update_invoice(
                     .execute(connection)
             }?;
         }
-        println!("Updated invoice details !");
+        log::debug!("Updated invoice details !");
 
-        println!("Sales invoice updated!");
+        log::debug!("Sales invoice updated!");
 
         QueryResult::Ok(())
     })?;

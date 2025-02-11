@@ -1,27 +1,30 @@
 use tauri::Manager;
 
 mod commands;
+mod db_ops;
+mod migrations;
+mod state;
+mod utils;
 mod connection;
 mod constants;
-mod db_ops;
 mod models;
 mod schema;
-mod utils;
 
-use std::error::Error;
+use crate::state::read_app_config_file;
 
-use diesel::mysql::Mysql;
-use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
+/* fn run_app_setup() -> Result<(), Box<dyn std::error::Error>> {
+    // read config file
+    // if config file is not present
+    // app will not start
+    let app_state = match read_app_config_file() {
+        Ok(state) => state,
+        Err(e) => return Err(e),
+    };
 
-pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations/mysql");
-
-fn run_migrations(
-    connection: &mut impl MigrationHarness<Mysql>,
-) -> Result<(), Box<dyn Error + Send + Sync + 'static>> {
-    connection.run_pending_migrations(MIGRATIONS)?;
-
+    // after config file
+    // run database migrations
     Ok(())
-}
+} */
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -78,11 +81,10 @@ pub fn run() {
             commands::common::get_all_financial_year,
         ])
         .setup(|_| {
-            let mut connection = crate::connection::establish_connection()?;
-            if let Err(e) = run_migrations(&mut connection) {
-                log::error!("Error while running migration {}", e);                
-            }
-            log::info!("Migration run successfully");
+            let app_state = match read_app_config_file() {
+                Ok(state) => state,
+                Err(e) => return Err(e),
+            };
 
             Ok(())
         })
