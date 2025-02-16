@@ -1,33 +1,51 @@
 use std::sync::Mutex;
 use std::fs;
+use diesel::Connection;
 use serde::{ Deserialize, Serialize };
+
+use diesel::mysql::MysqlConnection;
+use diesel::result::ConnectionError;
 
 use crate::constants::CONFIG_FILE_PATH;
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct Database {
     pub db_type: String,
-    pub url: String,
+    pub host: String,
     pub port: u16,
     pub username: String,
     pub password: String,
-    pub db_name: String,
+    pub db_name: Option<String>,
 }
 
-#[derive(Deserialize, Serialize)]
+impl Database {
+    fn connection_url(&self) -> String {
+        format!(
+            "mysql://{}:{}@{}:{}/{}",
+            self.username, self.password,
+            self.host, self.port, self.db_name.as_ref().unwrap()
+        )
+    }
+
+    pub fn establish_connection(&self) -> Result<MysqlConnection, ConnectionError> {
+        MysqlConnection::establish(&self.connection_url())
+    }
+}
+
+#[derive(Debug, Deserialize, Serialize)]
 pub struct Sidecar {
     pub name: String,
     pub arguments: Vec<String>,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct UI {
     pub mode: String,
     pub toast_rich_colors: bool,
     pub date_format: String,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct Config {
     pub database: Database,
     pub sidecar: Sidecar,

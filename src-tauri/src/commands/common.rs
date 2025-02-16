@@ -3,8 +3,8 @@ use fast_qr::convert::{image::ImageBuilder, Shape};
 use fast_qr::qr::QRBuilder;
 
 use crate::connection::establish_connection;
-use crate::db_ops::{financial_year, state_list};
-use crate::models::{FinancialYear, StateList};
+use crate::db_ops::{ financial_year, state_list };
+use crate::models::{ FinancialYear, StateList };
 
 #[tauri::command]
 pub fn get_qr_code(text: String, width: u32) -> Result<Vec<u8>, String> {
@@ -21,15 +21,15 @@ pub fn get_qr_code(text: String, width: u32) -> Result<Vec<u8>, String> {
 }
 
 #[tauri::command]
-pub fn find_states(query: String) -> Result<Vec<StateList>, String> {
-    let mut conn = establish_connection().map_err(|err| err.to_string())?;
+pub fn find_states(handle: tauri::AppHandle, query: String) -> Result<Vec<StateList>, String> {
+    let mut conn = establish_connection(handle).map_err(|err| err.to_string())?;
 
     state_list::search(query, &mut conn).map_err(|err| err.to_string())
 }
 
 #[tauri::command]
-pub fn get_state(state_id: i32) -> Result<StateList, String> {
-    let mut conn = establish_connection().map_err(|err| err.to_string())?;
+pub fn get_state(handle: tauri::AppHandle, state_id: i32) -> Result<StateList, String> {
+    let mut conn = establish_connection(handle).map_err(|err| err.to_string())?;
 
     state_list::get_state(state_id, &mut conn).map_err(|err| err.to_string())
 }
@@ -49,8 +49,8 @@ pub fn get_current_fy() -> Result<String, String> {
 }
 
 #[tauri::command]
-pub fn get_all_financial_year() -> Result<Vec<FinancialYear>, String> {
-    let mut conn = establish_connection().map_err(|err| err.to_string())?;
+pub fn get_all_financial_year(handle: tauri::AppHandle) -> Result<Vec<FinancialYear>, String> {
+    let mut conn = establish_connection(handle).map_err(|err| err.to_string())?;
 
     financial_year::get_all_financal_years(&mut conn).map_err(|err| err.to_string())
 }

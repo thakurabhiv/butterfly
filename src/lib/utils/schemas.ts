@@ -194,7 +194,7 @@ const InvoiceSummarySchema = z.object({
         .regex(regexp.FINANCIAL_YEAR_REGEXP, "Select financial year"),
     vendor_id: z.coerce.string().pipe(z.coerce.number().positive()),
     amount: z.coerce.string().pipe(z.coerce.number().positive()),
-    pkg_charges: z.coerce.string().pipe(z.coerce.number().positive()),
+    pkg_charges: z.coerce.string().pipe(z.coerce.number().positive()).optional(),
     taxable_amount: z.coerce.string().pipe(z.coerce.number().positive()),
     tax1: z.coerce.string().pipe(z.coerce.number().gte(0)),
     tax2: z.coerce.string().pipe(z.coerce.number().gte(0)),

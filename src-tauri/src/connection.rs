@@ -1,9 +1,12 @@
 use diesel::mysql::MysqlConnection;
-use diesel::prelude::*;
 use diesel::result::ConnectionError;
+use tauri::Manager;
 
-use crate::constants::DATABASE_URL;
+use crate::state::AppState;
 
-pub fn establish_connection() -> Result<MysqlConnection, ConnectionError> {
-    MysqlConnection::establish(DATABASE_URL)
+pub fn establish_connection(handle: tauri::AppHandle) -> Result<MysqlConnection, ConnectionError> {
+    let state = handle.state::<AppState>();
+    let app_state = state.lock().unwrap();
+    
+    app_state.database.establish_connection()
 }

@@ -1,3 +1,6 @@
+use std::env;
+
+use state::AppState;
 use tauri::Manager;
 
 mod commands;
@@ -11,20 +14,6 @@ mod models;
 mod schema;
 
 use crate::state::read_app_config_file;
-
-/* fn run_app_setup() -> Result<(), Box<dyn std::error::Error>> {
-    // read config file
-    // if config file is not present
-    // app will not start
-    let app_state = match read_app_config_file() {
-        Ok(state) => state,
-        Err(e) => return Err(e),
-    };
-
-    // after config file
-    // run database migrations
-    Ok(())
-} */
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -80,12 +69,31 @@ pub fn run() {
             commands::common::get_current_fy,
             commands::common::get_all_financial_year,
         ])
-        .setup(|_| {
-            let app_state = match read_app_config_file() {
-                Ok(state) => state,
-                Err(e) => return Err(e),
+        .setup(|app| {
+            // read the config fil for state
+            // add app state 
+            match read_app_config_file() {
+                Ok(cfg) => {
+                    app.manage(cfg);
+                },
+                Err(e) => {
+                    log::error!("Error while reading config file: {}", e);
+                    return Err(e);
+                },
             };
 
+            let state = app.state::<AppState>();
+            let app_state = state.lock().unwrap();
+            let connection = app_state.database.establish_connection()?;
+            match migrations::run_migrations(connection) {
+                Ok(_) => {
+                    log::debug!("Database migration run successfully!");
+                },
+                Err(e) => {
+                    log::error!("Error while running database migrations: {}", e);
+                    return Err("Error while running database migrations".into());
+                }
+            };
             Ok(())
         })
         .run(tauri::generate_context!())
