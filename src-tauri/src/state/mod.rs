@@ -8,7 +8,7 @@ use diesel::result::ConnectionError;
 
 use crate::constants::CONFIG_FILE_PATH;
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Database {
     pub db_type: String,
     pub host: String,
@@ -32,20 +32,20 @@ impl Database {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Sidecar {
     pub name: String,
-    pub arguments: Vec<String>,
+    pub port: u16,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct UI {
     pub mode: String,
     pub toast_rich_colors: bool,
     pub date_format: String,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Config {
     pub database: Database,
     pub sidecar: Sidecar,

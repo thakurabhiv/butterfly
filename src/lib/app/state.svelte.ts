@@ -2,20 +2,27 @@ const LOGIN_STATE = $state({
     isLoggedIn: false
 });
 
-type AppStateType = {
-    mode?: "light" | "dark" | "system",
-    dateFormat?: string,
-    toastRichColors?: boolean,
-    goServicePort?: number,
-};
-const APP_STATE: AppStateType = $state({
-    mode: "light",
+type AppUi = {
+    mode: "light" | "dark" | "system",
+    dateFormat: string,
+    toastRichColors: boolean,
+}
+
+type PDFService = {
+    name?: string,
+    port?: number
+}
+
+const APP_UI_STATE: AppUi = $state({
+    mode: "dark",
     dateFormat: "DD-MM-YYYY",
     toastRichColors: true,
-    goServicePort: 8089,
 });
+
+const PDF_SERVICE_STATE: PDFService = $state({});
 
 export {
     LOGIN_STATE,
-    APP_STATE
+    APP_UI_STATE,
+    PDF_SERVICE_STATE
 }

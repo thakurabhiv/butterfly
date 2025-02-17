@@ -48,7 +48,7 @@
     } from '$lib/utils/schemas';
     import { SideCarStatusCode, startSidecar, type SideCarStatus } from '$lib/utils/sideCar';
     import { TOAST_UPDATES, type ToastMessage, ToastMessageType } from '$lib/utils/stores';
-	import { APP_STATE } from '../state.svelte';
+	import { PDF_SERVICE_STATE } from '../state.svelte';
 
     let financialYears: { label: string, value: string }[] = $state([]);
     let financialYearPlaceHolder = "Financial Year";
@@ -136,6 +136,7 @@
                 taxDetails.tax_name3 += ` (${taxDetails.tax_rate3}%)`;
 
                 invoiceSummaryFormData = summary;
+                invoiceName = `Invoice_${invoiceSummaryFormData.invoice_number}.pdf`;                
                 
                 tick().then(onProductDataChanged);
                 tick().then(() => {
@@ -179,6 +180,7 @@
         invoke('next_invoice_id', { fy: financialYear })
             .then((id) => {
                 invoiceSummaryFormData.invoice_number = id as string;
+                invoiceName = `Invoice_${invoiceSummaryFormData.invoice_number}.pdf`;
                 loadTaxDetails();
             })
             .catch(console.error);
@@ -207,10 +209,10 @@
                 .then((value: TaxDetailsType) => {
                     invoiceSummaryFormData.tax_id = `${value.tax_id}`;
                     if (branchOwnerDetails.state_id == vendorFormData.state_id) {
+                        value.tax_rate1 = "0";
+                    } else {
                         value.tax_rate2 = "0";
                         value.tax_rate3 = "0";
-                    } else {
-                        value.tax_rate1 = "0";
                     }
 
                     value.tax_name1 += ` (${value.tax_rate1}%)`;
@@ -350,15 +352,16 @@
         setupInvoiceDate();
         loadBranchOwnerDetails();
 
-        const args = ["--port", `${APP_STATE.goServicePort}`];
+        const sidecarName = PDF_SERVICE_STATE.name;
+        const args = ["--port", `${PDF_SERVICE_STATE.port}`];
         // start sidecar
-        startSidecar("binaries/goservices", args)
+        startSidecar(sidecarName as string, args)
             .then((status: SideCarStatus) => {
                 if (status.code == SideCarStatusCode.OK) {
-                    log(`Sidecar started with process id ${status.pid}\n`);
+                    log(`Sidecar ${sidecarName} started with process id ${status.pid}\n`);
                     loadFontForGoService();
                 } else if (status.code == SideCarStatusCode.ALREADY_STARTED) {
-                    log(`Sidecar already started with process id ${status.pid}\n`);
+                    log(`Sidecar ${sidecarName} already started with process id ${status.pid}\n`);
                 }
             })
             .catch((err) => {
@@ -500,11 +503,10 @@
         }
     }
 
-    let invoiceName = $derived(`Invoice_${invoiceSummaryFormData.invoice_number}.pdf`);
+    let invoiceName = "";
     let invoicePDFBlob: Blob = $state(null as unknown as Blob);
     const openInvoice = async () => {
         const invoicePayload = await buildInvoicePayload();
-        console.log("invoicePayload", invoicePayload);
 
         getInvoicePDF(invoicePayload)
             .then((value) => {
@@ -785,7 +787,6 @@
                 <KField
                     label="Packaging Charges"
                     class="w-44"
-                    mandatory={true}
                     validationMsg={invoiceSummaryValidationMessages.pkg_charges}
                 >
                     <Input

@@ -68,6 +68,8 @@ pub fn run() {
             commands::common::log,
             commands::common::get_current_fy,
             commands::common::get_all_financial_year,
+            commands::common::get_app_config,
+            commands::common::save_app_ui_mode,
         ])
         .setup(|app| {
             // read the config fil for state

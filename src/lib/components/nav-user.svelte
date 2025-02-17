@@ -8,7 +8,7 @@
 	import LogOut from "lucide-svelte/icons/log-out";
 	import Exit from "lucide-svelte/icons/square-x";
 	import Restart from "lucide-svelte/icons/refresh-ccw";
-	import { LOGIN_STATE, APP_STATE } from "$lib/app/state.svelte";
+	import { LOGIN_STATE, APP_UI_STATE } from "$lib/app/state.svelte";
 
 	import { exit, relaunch } from "@tauri-apps/plugin-process";
 
@@ -98,7 +98,7 @@
 							Theme
 						</DropdownMenu.SubTrigger>
 						<DropdownMenu.SubContent>
-							<DropdownMenu.RadioGroup bind:value={APP_STATE.theme}>
+							<DropdownMenu.RadioGroup bind:value={APP_UI_STATE.mode}>
 								<DropdownMenu.RadioItem value="dark">Dark</DropdownMenu.RadioItem >
 								<DropdownMenu.RadioItem value="light">Light</DropdownMenu.RadioItem >
 								<DropdownMenu.RadioItem value="system">System</DropdownMenu.RadioItem >

@@ -15,7 +15,6 @@
       {
         "title": "Butterfly",
         "resizable": false,
-        "devtools": true,
         "dragDropEnabled": false,
         "incognito": true,
         "maximizable": false,

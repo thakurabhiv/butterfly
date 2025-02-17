@@ -9,7 +9,7 @@ import type {
     ProductDetailsType, TaxDetailsType
 } from '$lib/utils/schemas';
 import type { InvoiceDetailsSchema } from '$lib/utils/schemas';
-import { APP_STATE } from "$lib/app/state.svelte";
+import { APP_UI_STATE, PDF_SERVICE_STATE } from "$lib/app/state.svelte";
 
 const AMOUNT_FORMATTER = new Intl.NumberFormat("en-in", {
     style: "currency",
@@ -120,7 +120,7 @@ export function debounceWrapper(callback: Function, wait: number) {
 };
 
 export function formatDate(date: Date): string {
-    return moment(date).format(APP_STATE.dateFormat);
+    return moment(date).format(APP_UI_STATE.dateFormat);
 }
 
 export function formatAmount(amount: number): string {
@@ -190,7 +190,7 @@ export const getInvoicePDF = (payload: { [key: string]: any }): Promise<Blob> =>
 }
 
 const getGoServiceURL = () => {
-    return `http://127.0.0.1:${APP_STATE.goServicePort}`;
+    return `http://127.0.0.1:${PDF_SERVICE_STATE.port}`;
 }
 
 const sendRequest = async (url: string, method?: string, body?: BodyInit | null): Promise<Response> => {
@@ -241,7 +241,7 @@ export const buildInvoiceData = async (
         },
         other_charges: [{
             name: "Packaging Charges",
-            amount: parseFloat(summary.pkg_charges)
+            amount: parseFloat(summary.pkg_charges || "0")
         }],
         taxable_amount: {
             product_name: "Taxable Amount",

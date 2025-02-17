@@ -1,16 +1,16 @@
 [database]
-db_type = "mysql"
-host = "127.0.0.1"
+db_type = ""
+host = ""
 port = 3306
-username = "AbhishekT"
-password = "AbhishekT123"
-db_name = "butterfly_db"
+username = ""
+password = ""
+db_name = ""
 
 [sidecar]
 name = "binaries/goservices"
-arguments = ["--port", "8089"]
+port = 9005
 
 [ui]
-mode = "light"
+mode = "dark"
 toast_rich_colors = true
 date_format = "DD-MM-YYYY"
