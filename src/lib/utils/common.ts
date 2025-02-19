@@ -256,7 +256,7 @@ export const buildInvoiceData = async (
             "Thank you for doing business with us",
         ],
         terms_and_conditions: [
-            "Goods one sold can not be taken back or exchanged",
+            "Goods once sold can not be taken back or exchanged",
             "Payment must be done in 2 days",
             "Subject to local Jurisdiction"
         ]

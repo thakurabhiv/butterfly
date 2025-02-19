@@ -125,10 +125,10 @@
                 productData = productList;
                 taxDetails = __taxDetails;
                 if (branchOwnerDetails.state_id == vendorFormData.state_id) {
+                    taxDetails.tax_rate1 = "0";
+                } else {
                     taxDetails.tax_rate2 = "0";
                     taxDetails.tax_rate3 = "0";
-                } else {
-                    taxDetails.tax_rate1 = "0";
                 }
 
                 taxDetails.tax_name1 += ` (${taxDetails.tax_rate1}%)`;
@@ -412,12 +412,10 @@
     const save = () => {
         const summaryData = removeEmptyFields(invoiceSummaryFormData);
         const invoiceSummaryZResult = InvoiceSummarySchema.safeParse(summaryData);
-
+        
         if (invoiceSummaryZResult.success) {
             let invoiceSummaryData = invoiceSummaryZResult.data;
-            log(JSON.stringify(invoiceSummaryData) + "\n")
             const invoiceDetailsList = buildInvoiceDetail();
-            invoiceDetailsList.forEach((data) => log("Details: " + JSON.stringify(data) + "\n"))
   
             dateToISOString(invoiceSummaryData);
 
@@ -453,6 +451,7 @@
                     type: ToastMessageType.ERROR
                 }
                 TOAST_UPDATES.set(toastMessage);
+                log("Error while saving/updating invoice: " + err, "error");
             })
         }
     }
@@ -465,9 +464,9 @@
             invoiceDetails.product_id = data.product_id as number;
             invoiceDetails.quantity = data.quantity;
             invoiceDetails.unit = "KG";
-            invoiceDetails.price_per_unit = data.price;
+            invoiceDetails.price_per_unit = Number.parseFloat(data.price as unknown as string);
             invoiceDetails.no_of_bags = data.no_of_bags as number;
-            invoiceDetails.amount = data.amount;
+            invoiceDetails.amount = Number.parseFloat(data.amount as unknown as string);
             invoiceDetails.tax1 = (invoiceDetails.amount / 100 * Number.parseFloat(taxDetails.tax_rate1 || "0"));
             invoiceDetails.tax2 = (invoiceDetails.amount / 100 * Number.parseFloat(taxDetails.tax_rate2 || "0"));
             invoiceDetails.tax3 = (invoiceDetails.amount / 100 * Number.parseFloat(taxDetails.tax_rate3 || "0"));
