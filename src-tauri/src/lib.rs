@@ -1,8 +1,3 @@
-use std::env;
-
-use state::AppState;
-use tauri::Manager;
-
 mod commands;
 mod db_ops;
 mod migrations;
@@ -13,7 +8,8 @@ mod constants;
 mod models;
 mod schema;
 
-use crate::state::read_app_config_file;
+use state::AppState;
+use tauri::Manager;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -72,9 +68,17 @@ pub fn run() {
             commands::common::save_app_ui_mode,
         ])
         .setup(|app| {
-            // read the config fil for state
-            // add app state 
-            match read_app_config_file() {
+            // first create a config file with basic template if not exists
+            let config_path = match state::create_config_file_templ() {
+                Ok(path) => path,
+                Err(e) => {
+                    log::error!("Error while creating config file template: {}", e);
+                    return Err(e);
+                }
+            };
+            // read the config file
+            // add app state
+            match state::read_app_config_file(config_path) {
                 Ok(cfg) => {
                     app.manage(cfg);
                 },

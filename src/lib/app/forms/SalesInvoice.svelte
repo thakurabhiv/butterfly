@@ -503,7 +503,7 @@
         }
     }
 
-    let invoiceName = "";
+    let invoiceName = $state("");
     let invoicePDFBlob: Blob = $state(null as unknown as Blob);
     const openInvoice = async () => {
         const invoicePayload = await buildInvoicePayload();

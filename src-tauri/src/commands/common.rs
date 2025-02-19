@@ -9,8 +9,8 @@ use tauri::Manager;
 use crate::connection::establish_connection;
 use crate::db_ops::{ financial_year, state_list };
 use crate::models::{ FinancialYear, StateList };
-use crate::state::{ AppState, Config };
-use crate::constants::CONFIG_FILE_PATH;
+use crate::state::{ AppState, Config, get_config_dir };
+use crate::constants::CONFIG_FILE_NAME;
 
 #[tauri::command]
 pub fn get_qr_code(text: String, width: u32) -> Result<Vec<u8>, String> {
@@ -78,7 +78,10 @@ pub fn save_app_ui_mode(handle: tauri::AppHandle, mode: String) -> Result<(), St
     let config_content = toml::to_string(&app_state.clone())
         .map_err(|e| e.to_string())?;
 
-    let mut file = File::create(CONFIG_FILE_PATH).map_err(|e| e.to_string())?;
+    let config_dir = get_config_dir().map_err(|e| e.to_string())?;
+    let config_path = config_dir.join(CONFIG_FILE_NAME);
+
+    let mut file = File::create(config_path).map_err(|e| e.to_string())?;
     file.write_all(config_content.as_bytes()).map_err(|e| e.to_string())?;
     
     Ok(())
