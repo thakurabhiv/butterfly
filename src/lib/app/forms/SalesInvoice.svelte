@@ -235,7 +235,6 @@
         invoiceProductData.id = invoiceProductData.id || (0 as unknown as string);
 
         const zResult = InvoiceProductSchema.safeParse(invoiceProductData);
-        console.log(zResult);
         if (!zResult.success) {
             let issues = zResult.error.issues;
             invoiceProductValidationMessages = issues.reduce((result: any, item) => {
@@ -265,12 +264,12 @@
         productFormData = {} as ProductDetailsType;
         tick().then(productNameInput.focus);
 
-        calculateAllAmounts()
+        calculateAllAmounts();
     }
 
     const onProductEdit = async (event: any) => {
-        invoiceProductData = event.detail.data as InvoiceProductType;
-        prodUpdateIdx = event.detail.index;
+        invoiceProductData = event.data as InvoiceProductType;
+        prodUpdateIdx = event.index;
 
         productFormData = {} as ProductDetailsType;
         productFormData.short_name = invoiceProductData.short_name;
@@ -284,11 +283,15 @@
         (productQuantityInput.element() as HTMLInputElement).select();
     }
 
-    const onProductDelete = (event: any) => {
-        let data = event.detail as InvoiceProductType;
+    const onProductDelete = async (event: any) => {
+        let data = event.data as InvoiceProductType;
         let filteredData = productData.filter((value) => data.product_id != value.product_id);
 
         productData = filteredData;
+        onProductDataChanged();
+        await tick();
+        calculateAllAmounts();
+        
         if (invoiceProductDataMode == Mode.UPDATE && invoiceProductData.product_id == data.product_id) {
             invoiceProductDataMode = Mode.ADD;
 

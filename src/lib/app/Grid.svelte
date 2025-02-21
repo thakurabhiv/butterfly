@@ -35,13 +35,6 @@
         onEdit = () => {},
         onDelete = () => {}
     }: GridAttributes = $props();
-
-    // export let columnNames: string[] = [];
-    /* export let columns: Column[] = [];
-    export let data: any[] = [];
-    export const readableColumnNames: boolean = true;
-    export let allowEdit = false;
-    export let allowDelete = false; */
     
     function checkTypeNull(data: any, type: ColumnType | undefined) {
         if (!data) {
@@ -78,7 +71,7 @@
     }
 
     const onDeleteClick = (rowData: any) => {
-        onDelete(rowData);
+        onDelete({ data: rowData });
     }
 </script>
 
