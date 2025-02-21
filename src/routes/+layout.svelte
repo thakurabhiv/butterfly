@@ -4,7 +4,7 @@
 	import { Toaster } from "$lib/components/ui/sonner/index";
 	import { APP_UI_STATE, PDF_SERVICE_STATE } from "$lib/app/state.svelte";
 
-	import { onMount } from "svelte";
+	import { onMount, tick } from "svelte";
 	import { invoke } from "@tauri-apps/api/core";
 
 	let stateLoaded = $state(false);
@@ -12,7 +12,7 @@
 
 	onMount(() => {
 		invoke("get_app_config")
-			.then(({ ui, sidecar }: any) => {
+			.then(async ({ ui, sidecar }: any) => {
 				// setting app ui state
 				APP_UI_STATE.mode = ui.mode || APP_UI_STATE.mode;
 				APP_UI_STATE.dateFormat = ui.date_format || APP_UI_STATE.dateFormat;
@@ -22,6 +22,7 @@
 				PDF_SERVICE_STATE.name = sidecar.name;
 				PDF_SERVICE_STATE.port = sidecar.port;
 
+				await tick();
 				stateLoaded = true;
 			})
 			.catch(console.error);
