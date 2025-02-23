@@ -150,6 +150,11 @@ export const blobToBase64 = (blob: Blob, trim?: boolean): Promise<string> => {
     })
 }
 
+export const blobToUint8Array = async (blob: Blob): Promise<Uint8Array> => {
+    let buffer = await blob.arrayBuffer();
+    return new Uint8Array(buffer);
+};
+
 export const time = (millis: number): Promise<void> => {
     return new Promise((resolve, _) => {
         setTimeout(resolve, millis);

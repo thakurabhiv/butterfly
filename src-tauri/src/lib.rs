@@ -33,6 +33,7 @@ pub fn run() {
                 .set_focus();
         }))
         .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_dialog::init())
         .invoke_handler(tauri::generate_handler![
             commands::tax_details::find_all_tax_details,
             commands::tax_details::find_latest_tax_details,
@@ -66,6 +67,8 @@ pub fn run() {
             commands::common::get_all_financial_year,
             commands::common::get_app_config,
             commands::common::save_app_ui_mode,
+            commands::common::open_dialog_for_file_save,
+            commands::common::write_file_content,
         ])
         .setup(|app| {
             // first create a config file with basic template if not exists

@@ -8,7 +8,9 @@
 		name: string,
 		src: Blob,
 		scaleIncrement?: number,
-		onPrintEnd?: Function
+		onPrintEnd?: Function,
+		onSave?: Function,
+		onSaveError?: Function
 	};
 </script>
 <script lang="ts">
@@ -18,7 +20,7 @@
     import { Input } from '$lib/components/ui/input';
 	import { ScrollArea } from '$lib/components/ui/scroll-area';
 
-	import { ZoomIn, ZoomOut, Printer, Download } from 'lucide-svelte';
+	import { ZoomIn, ZoomOut, Printer, Save } from 'lucide-svelte';
 
     import type {
         PDFDocumentProxy, PageViewport
@@ -26,13 +28,16 @@
     import type { RenderParameters } from 'pdfjs-dist/types/src/display/api';
 	import PrintJS from 'print-js';
 
-	import { time, blobToBase64, log } from '$lib/utils/common';
+	import { time, blobToBase64, blobToUint8Array, log } from '$lib/utils/common';
+	import { invoke } from "@tauri-apps/api/core";
 
 	let {
 		name,
 		src,
 		scaleIncrement = 0.2,
-		onPrintEnd = () => {}
+		onPrintEnd = () => {},
+		onSave = () => {},
+		onSaveError = () => {},
 	}: KPDFViewerAttributes = $props();
 
 	let pages: string[] = $state([]);
@@ -120,6 +125,32 @@
 		});
     }
 
+	const saveFile = () => {
+		invoke("open_dialog_for_file_save", {
+			fileName: name,
+			title: `Save ${name}`,
+			filterName: "Pdf",
+			extensions: ["pdf"]
+		})
+		.then(async (filePath: any) => {
+			log(`File path: ${filePath}`);
+
+			const content = await blobToUint8Array(src);
+			invoke("write_file_content", { filePath, fileContent: content })
+				.then(() => {
+					log(`File saved successfully at path: ${filePath}`);
+					onSave({ name, filePath });
+				})
+				.catch((err) => {
+					log(`Error while saving file: ${err}`, "error");
+					onSaveError(err);
+				});
+		})
+		.catch((err) => {
+			log(`Error while saving file: ${err}`);
+		})
+	};
+
 	const onPrinterLoadingEnd = () => {
 		log("Printer loading ends\n");
 		onPrintEnd();
@@ -148,7 +179,9 @@
 					<button tabindex={-1} onclick={printPDF}>
 						<Printer class="h-5 w-5 cursor-pointer hover:text-primary"/>
 					</button>
-					<!-- <div><Download class="h-5 w-5 cursor-pointer hover:text-primary"/></div> -->
+					<button tabindex={-1} onclick={saveFile}>
+						<Save class="h-5 w-5 cursor-pointer hover:text-primary"/>
+					</button>
 				</div>
 			</div>
 		</div>

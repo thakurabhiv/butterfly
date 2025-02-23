@@ -528,6 +528,29 @@
             });
     };
 
+    const onInvoiceSave = async (event: any) => {
+        const invoiceName = event.name;
+        const savedPath = event.filePath;
+
+        openInvoiceDialog = false;
+        await time(250);
+        const toastMessage: ToastMessage = {
+            title: 'Success',
+            description: `${invoiceName} saved successfully at path ${savedPath}`,
+            type: ToastMessageType.SUCCESS,
+        };
+        TOAST_UPDATES.set(toastMessage);
+    };
+
+    const onInvoiceSaveError = (error: any) => {
+        const toastMessage: ToastMessage = {
+            title: 'Error',
+            description: `Error while saving invoice: ${error}`,
+            type: ToastMessageType.ERROR,
+        };
+        TOAST_UPDATES.set(toastMessage);
+    };
+
     const buildInvoicePayload = async () => {
         type InvoiceDetailInferType = z.infer<typeof InvoiceDetailsSchema>;
         let vendorState = await invoke("get_state", { stateId: vendorFormData.state_id }) as StateListType;
@@ -880,6 +903,8 @@
                         name={invoiceName}
                         src={invoicePDFBlob}
                         onPrintEnd={() => openInvoiceDialog = false}
+                        onSave={onInvoiceSave}
+                        onSaveError={onInvoiceSaveError}
                     />
                 {:else}
                     <div>Loading invoice</div>

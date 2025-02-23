@@ -5,6 +5,7 @@ use fast_qr::convert::Builder;
 use fast_qr::convert::{image::ImageBuilder, Shape};
 use fast_qr::qr::QRBuilder;
 use tauri::Manager;
+use tauri_plugin_dialog::{DialogExt, FilePath};
 
 use crate::connection::establish_connection;
 use crate::db_ops::{ financial_year, state_list };
@@ -84,5 +85,43 @@ pub fn save_app_ui_mode(handle: tauri::AppHandle, mode: String) -> Result<(), St
     let mut file = File::create(config_path).map_err(|e| e.to_string())?;
     file.write_all(config_content.as_bytes()).map_err(|e| e.to_string())?;
     
+    Ok(())
+}
+
+#[tauri::command]
+pub fn open_dialog_for_file_save(
+    handle: tauri::AppHandle,
+    file_name: String,
+    title: String,
+    filter_name: String,
+    extensions: Vec<&str>
+) -> Result<FilePath, String> {
+    let file_path = handle.dialog()
+        .file()
+        .set_file_name(file_name)
+        .set_title(title)
+        .add_filter(filter_name, extensions.as_slice())
+        .blocking_save_file();
+
+    match file_path {
+        Some(path) => Ok(path),
+        None => Err("Operation cancelled by user".into()),
+    }
+}
+
+#[tauri::command]
+pub fn write_file_content(
+    file_path: FilePath,
+    file_content: Vec<u8>
+) -> Result<(), String> {
+    log::debug!("Saving file at path: {}", file_path);
+    
+    if let FilePath::Path(path) = file_path {
+        let mut file = std::fs::File::create(path)
+            .map_err(|e| e.to_string())?;
+
+        file.write_all(&file_content).map_err(|e| e.to_string())?;
+    }
+
     Ok(())
 }
