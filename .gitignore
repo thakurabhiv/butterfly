@@ -24,3 +24,7 @@ vite.config.ts.timestamp-*
 
 # exe
 **/*.exe
+**/binaries
+
+# ide
+.idea
