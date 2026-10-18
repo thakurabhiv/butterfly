@@ -362,10 +362,13 @@
             .then((status: SideCarStatus) => {
                 if (status.code == SideCarStatusCode.OK) {
                     log(`Sidecar ${sidecarName} started with process id ${status.pid}\n`);
-                    loadFontForGoService();
                 } else if (status.code == SideCarStatusCode.ALREADY_STARTED) {
                     log(`Sidecar ${sidecarName} already started with process id ${status.pid}\n`);
                 }
+
+                // load font for go service
+                // regardless of whether it is already started or just started now
+                loadFontForGoService();
             })
             .catch((err) => {
                 const toastMessage: ToastMessage = {

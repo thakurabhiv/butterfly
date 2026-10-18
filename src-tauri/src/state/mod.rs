@@ -1,10 +1,10 @@
+use std::fs;
 use std::io::Write;
 use std::sync::Mutex;
-use std::fs;
 
-use directories;
 use diesel::Connection;
-use serde::{ Deserialize, Serialize };
+use directories;
+use serde::{Deserialize, Serialize};
 
 use diesel::mysql::MysqlConnection;
 use diesel::result::ConnectionError;
@@ -27,8 +27,11 @@ impl Database {
     fn connection_url(&self) -> String {
         format!(
             "mysql://{}:{}@{}:{}/{}",
-            self.username, self.password,
-            self.host, self.port, self.db_name.as_ref().unwrap()
+            self.username,
+            self.password,
+            self.host,
+            self.port,
+            self.db_name.as_ref().unwrap()
         )
     }
 
@@ -44,6 +47,13 @@ pub struct Sidecar {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct Backup {
+    pub client_id: String,
+    pub client_secret: String,
+    pub redirect_port: u16,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct UI {
     pub mode: String,
     pub toast_rich_colors: bool,
@@ -54,7 +64,8 @@ pub struct UI {
 pub struct Config {
     pub database: Database,
     pub sidecar: Sidecar,
-    pub ui: UI
+    pub backup: Backup,
+    pub ui: UI,
 }
 
 pub type AppState = Mutex<Config>;
@@ -68,7 +79,7 @@ pub fn create_config_file_templ() -> Result<std::path::PathBuf, Box<dyn std::err
 
     let config_path = config_dir.join(CONFIG_FILE_NAME);
     let exists = std::fs::exists(&config_path)?;
-    
+
     if !exists {
         log::debug!("Writing config template to config directory");
         let mut file = std::fs::File::create(&config_path)?;
@@ -81,9 +92,7 @@ pub fn create_config_file_templ() -> Result<std::path::PathBuf, Box<dyn std::err
 }
 
 pub fn get_config_dir() -> Result<std::path::PathBuf, Box<dyn std::error::Error>> {
-    if let Some(proj_dirs) = directories::ProjectDirs::from(
-        "", "com.butterfly", ""
-    ) {
+    if let Some(proj_dirs) = directories::ProjectDirs::from("", "com.butterfly", "") {
         let config_dir = proj_dirs.config_dir();
         return Ok(std::path::PathBuf::from(config_dir));
     } else {
@@ -91,7 +100,9 @@ pub fn get_config_dir() -> Result<std::path::PathBuf, Box<dyn std::error::Error>
     }
 }
 
-pub fn read_app_config_file(path: std::path::PathBuf) -> Result<AppState, Box<dyn std::error::Error>> {
+pub fn read_app_config_file(
+    path: std::path::PathBuf,
+) -> Result<AppState, Box<dyn std::error::Error>> {
     let config_content = match fs::read_to_string(path) {
         Ok(content) => content,
         Err(e) => return Err(Box::new(e)),
