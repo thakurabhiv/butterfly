@@ -10,6 +10,13 @@ db_name = ""
 name = "binaries/goservices"
 port = 9005
 
+[backup]
+client_id = ""
+client_secret = ""
+redirect_port = 0
+path = ""
+cron = "0 * * * * *"
+
 [ui]
 mode = "dark"
 toast_rich_colors = true

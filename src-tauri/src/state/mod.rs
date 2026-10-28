@@ -51,6 +51,20 @@ pub struct Backup {
     pub client_id: String,
     pub client_secret: String,
     pub redirect_port: u16,
+    pub path: String,
+    pub cron: String,
+}
+
+impl Default for Backup {
+    fn default() -> Self {
+        Self {
+            client_id: String::new(),
+            client_secret: String::new(),
+            redirect_port: 0,
+            path: String::new(),
+            cron: "0 0 0 * * *".to_string(),
+        }
+    }
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -64,6 +78,7 @@ pub struct UI {
 pub struct Config {
     pub database: Database,
     pub sidecar: Sidecar,
+    #[serde(default)]
     pub backup: Backup,
     pub ui: UI,
 }

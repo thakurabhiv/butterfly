@@ -94,6 +94,7 @@ pub fn run() {
             let state = app.state::<AppState>();
             let app_state = state.lock().unwrap();
             let connection = app_state.database.establish_connection()?;
+            drop(app_state);
             match migrations::run_migrations(connection) {
                 Ok(_) => {
                     log::debug!("Database migration run successfully!");
@@ -103,6 +104,8 @@ pub fn run() {
                     return Err("Error while running database migrations".into());
                 }
             };
+
+            commands::backup::setup_auto_backup(app)?;
             Ok(())
         })
         .run(tauri::generate_context!())
