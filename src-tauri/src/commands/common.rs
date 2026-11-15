@@ -8,10 +8,10 @@ use tauri::Manager;
 use tauri_plugin_dialog::{DialogExt, FilePath};
 
 use crate::connection::establish_connection;
-use crate::db_ops::{ financial_year, state_list };
-use crate::models::{ FinancialYear, StateList };
-use crate::state::{ AppState, Config, get_config_dir };
 use crate::constants::CONFIG_FILE_NAME;
+use crate::db_ops::{financial_year, state_list};
+use crate::models::{FinancialYear, StateList};
+use crate::state::{get_config_dir, AppState, Config};
 
 #[tauri::command]
 pub fn get_qr_code(text: String, width: u32) -> Result<Vec<u8>, String> {
@@ -76,15 +76,15 @@ pub fn save_app_ui_mode(handle: tauri::AppHandle, mode: String) -> Result<(), St
     let mut app_state = state.lock().unwrap();
     app_state.ui.mode = mode;
 
-    let config_content = toml::to_string(&app_state.clone())
-        .map_err(|e| e.to_string())?;
+    let config_content = toml::to_string(&app_state.clone()).map_err(|e| e.to_string())?;
 
     let config_dir = get_config_dir().map_err(|e| e.to_string())?;
     let config_path = config_dir.join(CONFIG_FILE_NAME);
 
     let mut file = File::create(config_path).map_err(|e| e.to_string())?;
-    file.write_all(config_content.as_bytes()).map_err(|e| e.to_string())?;
-    
+    file.write_all(config_content.as_bytes())
+        .map_err(|e| e.to_string())?;
+
     Ok(())
 }
 
@@ -94,9 +94,10 @@ pub fn open_dialog_for_file_save(
     file_name: String,
     title: String,
     filter_name: String,
-    extensions: Vec<&str>
+    extensions: Vec<&str>,
 ) -> Result<FilePath, String> {
-    let file_path = handle.dialog()
+    let file_path = handle
+        .dialog()
         .file()
         .set_file_name(file_name)
         .set_title(title)
@@ -110,15 +111,11 @@ pub fn open_dialog_for_file_save(
 }
 
 #[tauri::command]
-pub fn write_file_content(
-    file_path: FilePath,
-    file_content: Vec<u8>
-) -> Result<(), String> {
+pub fn write_file_content(file_path: FilePath, file_content: Vec<u8>) -> Result<(), String> {
     log::debug!("Saving file at path: {}", file_path);
-    
+
     if let FilePath::Path(path) = file_path {
-        let mut file = std::fs::File::create(path)
-            .map_err(|e| e.to_string())?;
+        let mut file = std::fs::File::create(path).map_err(|e| e.to_string())?;
 
         file.write_all(&file_content).map_err(|e| e.to_string())?;
     }

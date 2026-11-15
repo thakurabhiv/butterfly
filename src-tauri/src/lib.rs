@@ -1,12 +1,12 @@
 mod commands;
-mod db_ops;
-mod migrations;
-mod state;
-mod utils;
 mod connection;
 mod constants;
+mod db_ops;
+mod migrations;
 mod models;
 mod schema;
+mod state;
+mod utils;
 
 use state::AppState;
 use tauri::Manager;
@@ -14,6 +14,8 @@ use tauri::Manager;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_store::Builder::new().build())
+        .plugin(tauri_plugin_opener::init())
         .plugin(
             tauri_plugin_log::Builder::new()
                 .target(tauri_plugin_log::Target::new(
@@ -34,6 +36,7 @@ pub fn run() {
         }))
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_store::Builder::new().build())
         .invoke_handler(tauri::generate_handler![
             commands::tax_details::find_all_tax_details,
             commands::tax_details::find_latest_tax_details,
@@ -69,6 +72,7 @@ pub fn run() {
             commands::common::save_app_ui_mode,
             commands::common::open_dialog_for_file_save,
             commands::common::write_file_content,
+            commands::backup::authenticate_google_account_for_backup,
         ])
         .setup(|app| {
             // first create a config file with basic template if not exists
@@ -84,11 +88,11 @@ pub fn run() {
             match state::read_app_config_file(config_path) {
                 Ok(cfg) => {
                     app.manage(cfg);
-                },
+                }
                 Err(e) => {
                     log::error!("Error while reading config file: {}", e);
                     return Err(e);
-                },
+                }
             };
 
             let state = app.state::<AppState>();
@@ -97,7 +101,7 @@ pub fn run() {
             match migrations::run_migrations(connection) {
                 Ok(_) => {
                     log::debug!("Database migration run successfully!");
-                },
+                }
                 Err(e) => {
                     log::error!("Error while running database migrations: {}", e);
                     return Err("Error while running database migrations".into());

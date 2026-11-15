@@ -8,7 +8,12 @@
 	import LogOut from "lucide-svelte/icons/log-out";
 	import Exit from "lucide-svelte/icons/square-x";
 	import Restart from "lucide-svelte/icons/refresh-ccw";
+	import ShieldCheck from 'lucide-svelte/icons/shield-check';
 	import { LOGIN_STATE, APP_UI_STATE } from "$lib/app/state.svelte";
+
+	import { TOAST_UPDATES, type ToastMessage, ToastMessageType } from '$lib/utils/stores';
+
+    import { invoke } from '@tauri-apps/api/core';
 
 	import { exit, relaunch } from "@tauri-apps/plugin-process";
 
@@ -26,6 +31,28 @@
 	const restartApp = async () => {
 		await relaunch();
 	};
+
+	const auth_google_account = async () => {
+        invoke("authenticate_google_account_for_backup", {})
+            .then(() => {
+                let toastData = {
+                    title: 'Success',
+					description: `Success`,
+                    type: ToastMessageType.SUCCESS
+				};
+
+                TOAST_UPDATES.set(toastData);
+            })
+            .catch((err) => {
+                let toastData = {
+					title: 'Error',
+					description: err,
+					type: ToastMessageType.ERROR
+				};
+
+                TOAST_UPDATES.set(toastData);
+            });
+    }
 </script>
 
 <Sidebar.Menu>
@@ -106,6 +133,11 @@
 						</DropdownMenu.SubContent>
 					</DropdownMenu.Sub>
 				</DropdownMenu.Group>
+				<DropdownMenu.Separator />
+				<DropdownMenu.Item onSelect={auth_google_account}>
+					<ShieldCheck />
+					Authenticate Google Account
+				</DropdownMenu.Item>
 				<DropdownMenu.Separator />
 				<DropdownMenu.Item onSelect={exitApp}>
 					<Exit/>

@@ -9,7 +9,10 @@ use crate::{
 };
 
 #[tauri::command]
-pub fn find_sales_invoice_number(handle: tauri::AppHandle, query: String) -> Result<Vec<InvoiceSummary>, String> {
+pub fn find_sales_invoice_number(
+    handle: tauri::AppHandle,
+    query: String,
+) -> Result<Vec<InvoiceSummary>, String> {
     let mut conn = establish_connection(handle).map_err(|err| err.to_string())?;
 
     sales_invoice::search(query, &mut conn).map_err(|err| err.to_string())

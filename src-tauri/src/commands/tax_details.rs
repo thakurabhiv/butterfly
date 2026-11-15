@@ -14,7 +14,10 @@ pub fn has_tax_details_for(handle: tauri::AppHandle, fy: String) -> Result<bool,
 }
 
 #[tauri::command]
-pub fn find_all_tax_details(handle: tauri::AppHandle, financial_year: String) -> Result<Vec<TaxDetail>, String> {
+pub fn find_all_tax_details(
+    handle: tauri::AppHandle,
+    financial_year: String,
+) -> Result<Vec<TaxDetail>, String> {
     let mut conn = establish_connection(handle).unwrap();
 
     tax_details::find_all(financial_year, &mut conn)
@@ -22,7 +25,10 @@ pub fn find_all_tax_details(handle: tauri::AppHandle, financial_year: String) ->
 }
 
 #[tauri::command]
-pub fn find_latest_tax_details(handle: tauri::AppHandle, financial_year: String) -> Result<TaxDetail, String> {
+pub fn find_latest_tax_details(
+    handle: tauri::AppHandle,
+    financial_year: String,
+) -> Result<TaxDetail, String> {
     let mut conn = establish_connection(handle).map_err(|err| err.to_string())?;
 
     tax_details::find_latest(financial_year, &mut conn).map_err(|err| err.to_string())
@@ -43,7 +49,10 @@ pub fn tax_details_get_all_fy(handle: tauri::AppHandle) -> Result<Vec<String>, S
 }
 
 #[tauri::command]
-pub fn save_tax_details(handle: tauri::AppHandle, new_tax_details: NewTaxDetails) -> Result<usize, String> {
+pub fn save_tax_details(
+    handle: tauri::AppHandle,
+    new_tax_details: NewTaxDetails,
+) -> Result<usize, String> {
     let mut conn = establish_connection(handle).unwrap();
 
     tax_details::save(new_tax_details, &mut conn).map_err(|err| err.to_string())
