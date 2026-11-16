@@ -57,7 +57,6 @@ pub struct UI {
 pub struct Backup {
     pub client_id: String,
     pub client_secret: String,
-    pub redirect_port: u16,
     // pub path: String,
     // pub cron: String,
 }
@@ -67,7 +66,7 @@ pub struct Config {
     pub database: Database,
     pub sidecar: Sidecar,
     pub ui: UI,
-    pub backup: Backup,
+    pub backup: Option<Backup>,
 }
 
 pub type AppState = Mutex<Config>;

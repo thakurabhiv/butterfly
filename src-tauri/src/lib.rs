@@ -73,6 +73,8 @@ pub fn run() {
             commands::common::open_dialog_for_file_save,
             commands::common::write_file_content,
             commands::backup::authenticate_google_account_for_backup,
+            commands::backup::auth_token_created,
+            commands::backup::backup_database,
         ])
         .setup(|app| {
             // first create a config file with basic template if not exists

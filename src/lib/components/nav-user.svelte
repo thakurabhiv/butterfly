@@ -32,7 +32,7 @@
 		await relaunch();
 	};
 
-	const auth_google_account = async () => {
+	const authGoogleAccount = async () => {
         invoke("authenticate_google_account_for_backup", {})
             .then(() => {
                 let toastData = {
@@ -53,6 +53,28 @@
                 TOAST_UPDATES.set(toastData);
             });
     }
+
+	const backupDatabase = async () => {
+		invoke("backup_database", {})
+			.then(() => {
+				let toastData = {
+					title: 'Success',
+					description: `Database backup completed successfully`,
+					type: ToastMessageType.SUCCESS
+				};
+
+				TOAST_UPDATES.set(toastData);
+			})
+			.catch((err) => {
+				let toastData = {
+					title: 'Error',
+					description: err,
+					type: ToastMessageType.ERROR
+				};
+
+				TOAST_UPDATES.set(toastData);
+			});
+	}
 </script>
 
 <Sidebar.Menu>
@@ -134,9 +156,13 @@
 					</DropdownMenu.Sub>
 				</DropdownMenu.Group>
 				<DropdownMenu.Separator />
-				<DropdownMenu.Item onSelect={auth_google_account}>
+				<DropdownMenu.Item onSelect={authGoogleAccount}>
 					<ShieldCheck />
 					Authenticate Google Account
+				</DropdownMenu.Item>
+				<DropdownMenu.Item onSelect={backupDatabase}>
+					<ShieldCheck />
+					Backup Database
 				</DropdownMenu.Item>
 				<DropdownMenu.Separator />
 				<DropdownMenu.Item onSelect={exitApp}>
