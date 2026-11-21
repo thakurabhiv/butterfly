@@ -73,7 +73,6 @@ pub fn run() {
             commands::common::open_dialog_for_file_save,
             commands::common::write_file_content,
             commands::backup::authenticate_google_account_for_backup,
-            commands::backup::auth_token_created,
             commands::backup::backup_database,
         ])
         .setup(|app| {
@@ -100,6 +99,7 @@ pub fn run() {
             let state = app.state::<AppState>();
             let app_state = state.lock().unwrap();
             let connection = app_state.database.establish_connection()?;
+            drop(app_state);
             match migrations::run_migrations(connection) {
                 Ok(_) => {
                     log::debug!("Database migration run successfully!");
@@ -109,6 +109,14 @@ pub fn run() {
                     return Err("Error while running database migrations".into());
                 }
             };
+
+            let app_handle = app.app_handle().clone();
+            tauri::async_runtime::spawn(async move {
+                if let Err(err) = commands::backup::setup_auto_backup(app_handle).await {
+                    log::error!("Failed to set up automatic database backup: {}", err);
+                }
+            });
+
             Ok(())
         })
         .run(tauri::generate_context!())

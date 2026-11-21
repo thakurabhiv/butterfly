@@ -57,8 +57,7 @@ pub struct UI {
 pub struct Backup {
     pub client_id: String,
     pub client_secret: String,
-    // pub path: String,
-    // pub cron: String,
+    pub cron: String,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]

@@ -16,6 +16,7 @@ use std::process::{Command, Stdio};
 use tauri::{AppHandle, Manager, Runtime, Wry};
 use tauri_plugin_opener::OpenerExt;
 use tauri_plugin_store::StoreExt;
+use tokio_cron_scheduler::{Job, JobScheduler};
 use yup_oauth2::authenticator_delegate::InstalledFlowDelegate;
 use yup_oauth2::storage::{TokenInfo, TokenStorage};
 use yup_oauth2::{ApplicationSecret, InstalledFlowAuthenticator, InstalledFlowReturnMethod};
@@ -151,6 +152,50 @@ pub fn auth_token_created(handle: tauri::AppHandle) -> anyhow::Result<bool, Stri
         Ok(info) => Ok(info.refresh_token.is_some()),
         Err(_) => Err("Error while parsing token".to_string()),
     }
+}
+
+pub async fn setup_auto_backup(
+    app_handle: tauri::AppHandle,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let backup_config = {
+        let state = app_handle.state::<AppState>();
+        let Ok(app_state) = state.lock() else {
+            return Err("Unable to get app state".into());
+        };
+        let Some(backup_config) = app_state.backup.clone() else {
+            return Err("Databse backup not configured".into());
+        };
+        backup_config
+    };
+
+    let scheduler = JobScheduler::new()
+        .await
+        .map_err(|err| -> Box<dyn std::error::Error> { Box::new(err) })?;
+    let cron_expression = backup_config.cron;
+    let app_handle_for_job = app_handle.clone();
+
+    log::debug!("Cron expression: {}", cron_expression);
+
+    let backup_job = Job::new_async(cron_expression.as_str(), move |_uuid, _l| {
+        let app_handle = app_handle_for_job.clone();
+        Box::pin(async move {
+            if let Err(err) = backup_database(app_handle).await {
+                log::error!("Automatic database backup failed: {}", err);
+            }
+        })
+    })
+    .map_err(|err| -> Box<dyn std::error::Error> { Box::new(err) })?;
+
+    scheduler
+        .add(backup_job)
+        .await
+        .map_err(|err| -> Box<dyn std::error::Error> { Box::new(err) })?;
+    scheduler
+        .start()
+        .await
+        .map_err(|err| -> Box<dyn std::error::Error> { Box::new(err) })?;
+
+    Ok(())
 }
 
 #[tauri::command]
